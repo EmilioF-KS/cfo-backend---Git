@@ -28,4 +28,9 @@ public class ImportingDataController {
     public List<Screen> allScreens() {
         return dynamicScreensService.getAllScreens();
     }
+    
+    @GetMapping("/welcome")
+    public String welcome() {
+        return "Welcome everyone";
+    }
 }
