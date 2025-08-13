@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://172.18.128.1:8080") 
 @RequestMapping("/import/api")
 public class ImportingDataController {
 
