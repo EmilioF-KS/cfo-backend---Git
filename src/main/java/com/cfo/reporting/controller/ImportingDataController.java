@@ -8,6 +8,10 @@ import com.cfo.reporting.service.UpdatedTablesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import java.util.List;
 
 @RestController
@@ -29,9 +33,15 @@ public class ImportingDataController {
         return dynamicScreensService.getAllScreens();
     }
     
-    @CrossOrigin(origins = "http://172.18.128.1:8080") 
+    //@CrossOrigin(origins = "http://172.18.128.1:8080") 
     @GetMapping("/welcome")
-    public String welcome() {
-        return "Welcome everyone";
+    public ResponseEntity<String> welcome() {
+    	HttpHeaders headers = new HttpHeaders();
+        headers.add("Access-Control-Allow-Origin", "*"); // Add your custom header
+
+        String responseBody = "Welcome everyone";
+
+        return new ResponseEntity<>(responseBody, headers, HttpStatus.OK);
+        //return "Welcome everyone";
     }
 }
