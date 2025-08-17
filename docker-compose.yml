@@ -16,7 +16,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:32265/cfo-reporting
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:32265/cfo_reporting_db
 
 volumes:
   mysql-data:
