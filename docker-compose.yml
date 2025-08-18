@@ -14,9 +14,6 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     
-    networks:
-      - app-network
-
 
   app:
     build: .
@@ -24,14 +21,9 @@ services:
       - mysql
     ports:
       - "8081:8080"
-    networks:
-      - app-network
 
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/cfo_reporting
- 
-networks:
-  app-network:
 
 volumes:
   mysql-data:
