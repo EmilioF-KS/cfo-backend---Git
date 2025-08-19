@@ -21,7 +21,10 @@ services:
     depends_on:
       - mysql
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/cfo_reporting
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/cfo_reporting          
+      SPRING_DATASOURCE_USERNAME: jenkins_user
+      SPRING_DATASOURCE_PASSWORD: theksqu4r3gr0upMx
+
     ports:
       - "8081:8080"
     networks:
