@@ -10,7 +10,7 @@ services:
       MYSQL_USER: jenkins_user
       MYSQL_PASSWORD: theksqu4r3gr0upMx
     ports:
-      - "33567:3306"
+      - "33568:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
