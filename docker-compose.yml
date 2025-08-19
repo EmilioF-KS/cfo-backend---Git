@@ -4,7 +4,7 @@ services:
   mysql:
     image: mysql:8.0
     container_name: cfo-mysql-db
-    restart: "yes"
+    restart: on-failure
     environment:
       MYSQL_DATABASE: cfo_reporting
       MYSQL_USER: jenkins_user
