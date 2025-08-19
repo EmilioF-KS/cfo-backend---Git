@@ -35,4 +35,3 @@ volumes:
 
 networks:
   backend:
-    bridge
