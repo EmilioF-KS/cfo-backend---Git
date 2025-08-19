@@ -4,13 +4,13 @@ services:
   mysql:
     image: mysql:8.0
     container_name: cfo-mysql-db
-    restart: on-failure
+    restart: always
     environment:
       MYSQL_DATABASE: cfo_reporting
       MYSQL_USER: jenkins_user
       MYSQL_PASSWORD: theksqu4r3gr0upMx
     ports:
-      - "33568:3306"
+      - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
