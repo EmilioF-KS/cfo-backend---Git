@@ -6,7 +6,6 @@ services:
     container_name: cfo-mysql-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: theksqu4r3gr0upMx
       MYSQL_DATABASE: cfo_reporting
       MYSQL_USER: jenkins_user
       MYSQL_PASSWORD: theksqu4r3gr0upMx
