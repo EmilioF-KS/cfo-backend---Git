@@ -1,0 +1,43 @@
+package com.cfo.reporting.drools.vlookup.rules;
+import com.cfo.reporting.drools.vlookup.model.data.requests.LookupRequest
+import com.cfo.reporting.drools.vlookup.model.data.results.LookupResult
+import com.cfo.reporting.drools.vlookup.model.data.DataTable
+import com.cfo.reporting.drools.vlookup.model.data.DataRow
+import net.objecthunter.exp4j.ExpressionBuilder
+
+rule "VLOOKUP - Busqueda exacta"
+    salience 100
+    when
+        $request : LookupRequest(
+            $value : lookupValue,
+            $table : tableName,
+            $column : columnName
+        )
+        $tableData : DataTable(name == $table)
+        $row : DataRow(
+            tableName == $table,
+            containsValue("id", $value)  // Asume que buscas por columna "id"
+        )
+    then
+        Object resultValue = $row.get($column);
+        insert(new LookupResult($request, resultValue));
+        System.out.println("[DROOLS] Match found: " + $value + " -> " + resultValue);
+end
+
+rule "Búsqueda aproximada"
+    when
+        $request : LookupRequest(
+            $value : lookupValue,
+            $table : tableName,
+            $column : columnName
+        )
+        $tableData : DataTable(name == $table)
+        $row : DataRow(
+            tableName == $table,
+            containsPartial($column, $value.toString())
+        )
+    then
+        Object resultValue = $row.get($column);
+        insert(new LookupResult($request, resultValue));
+        System.out.println("[DROOLS] Partial match: " + $value + " -> " + resultValue);
+end

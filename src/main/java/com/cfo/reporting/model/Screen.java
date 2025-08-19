@@ -14,5 +14,6 @@ public class Screen {
     private String screenId;
     private String screenName;
     private String description;
+    private int screen_order;
 
 }

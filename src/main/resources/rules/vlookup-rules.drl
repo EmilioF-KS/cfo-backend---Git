@@ -1,0 +1,74 @@
+package rules
+import com.cfo.reporting.drools.vlookup.EvaluationResult
+import com.cfo.reporting.drools.vlookup.ParsedExpression
+import com.cfo.reporting.drools.vlookup.model.data.EvaluationContext
+import com.cfo.reporting.drools.vlookup.VLookupExpression
+import com.cfo.reporting.drools.vlookup.VLookupRequest
+import com.cfo.reporting.drools.vlookup.ReferenceDataLoader
+
+global ReferenceDataLoader dataLoader
+
+// ----------------------------------------
+// 1. Detect and extract VLOOKUP() from parsed expression
+// ----------------------------------------
+rule "Process VLOOKUP expression"
+    when
+        $parsed  : ParsedExpression()
+        $context : EvaluationContext()
+        $vlookup : VLookupExpression() from $parsed.getParts()
+        $result  : EvaluationResult()
+    then
+        Object lookupValue = $vlookup.getLookupValue().evaluate($context);
+
+        System.out.println("=== Processing VLOOKUP Expression ===");
+        System.out.println("Lookup value from context: " + lookupValue);
+
+        if (lookupValue == null) {
+            System.err.println("Lookup value is null — skipping request");
+        } else {
+            insert(new VLookupRequest(
+                lookupValue,
+                $vlookup.getTableName(),
+                $vlookup.getColumnName(),
+                $vlookup.getMatchType(),
+                $vlookup.getRangeMode()
+            ));
+        }
+end
+
+// ----------------------------------------
+// 2. Handle the VLOOKUP request and compute final result
+// ----------------------------------------
+rule "Handle VLookupRequest"
+    when
+        $req     : VLookupRequest()
+        $context : EvaluationContext()
+        $result  : EvaluationResult()
+    then
+        // Step 1: Lookup from reference data
+        Object priceObj = dataLoader.lookup(
+            $req.getTableName(),
+            String.valueOf($req.getLookupValue()),
+            $req.getColumnName()
+        );
+
+        if (priceObj == null) {
+            System.err.println("No price found for: " + $req);
+            return;
+        }
+
+        // Step 2: Get quantity from context
+        Object qtyObj = $context.get("quantity");
+
+        // Step 3: Multiply if quantity present
+        double price = ((Number) priceObj).doubleValue();
+        double qty   = qtyObj != null ? ((Number) qtyObj).doubleValue() : 1.0;
+        double total = price * qty;
+
+        System.out.println("Looked up price: " + price);
+        System.out.println("Quantity: " + qty);
+        System.out.println("Computed total: " + total);
+
+        // Step 4: Store in result
+        $result.setValue(total);
+end

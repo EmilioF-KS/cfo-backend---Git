@@ -13,4 +13,5 @@ public class ScreenDTO {
     private Long id;
     private String screenName;
     private String screenDescripcion;
+    private List<Concept> allConcepts;
 }

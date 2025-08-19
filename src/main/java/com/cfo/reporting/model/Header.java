@@ -11,6 +11,9 @@ public class Header {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long headerId;
+    private String header_text;
+    private long header_order;
+    private String screens_screen_id;
 
 
 

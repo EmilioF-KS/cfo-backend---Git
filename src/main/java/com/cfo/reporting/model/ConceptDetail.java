@@ -1,30 +1,23 @@
 package com.cfo.reporting.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.List;
 
 @Entity
 @Table(name = "tbl_cfo_concept_details")
+@Data
 public class ConceptDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long detail_id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "concepto_id", nullable = false)
-    private Concept concepto;
+    private long concept_id;
+    private String detailValue;
+    private String detailLabel;
+    private int detailOrder;
 
-    // Relación 1:N con Formula
-    @OneToMany(mappedBy = "detalleConcepto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Formula> formulas;
 
-    // Getters y Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Concept getConcepto() { return concepto; }
-    public void setConcepto(Concept concepto) { this.concepto = concepto; }
-    public List<Formula> getFormulas() { return formulas; }
-    public void setFormulas(List<Formula> formulas) { this.formulas = formulas; }
 }

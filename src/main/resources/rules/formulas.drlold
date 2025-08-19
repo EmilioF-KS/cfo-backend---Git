@@ -1,0 +1,132 @@
+package com.cfo.app.rules;
+import com.example.dynamicui.drools.DroolsFormulaProcessor.FormulaContext
+import com.example.dynamicui.drools.DroolsFormulaProcessor.ResultHolder
+import java.sql.ResultSet
+import javax.swing.table.AbstractTableModel
+
+global ResultHolder result
+
+// Regla para manejar fórmulas SUM
+rule "Sum formula rule"
+    when
+        $context : FormulaContext(formula.startsWith("SUM(") && formula.endsWith(")"))
+        $tableModel : AbstractTableModel() from $context.getContext().get("tableModel")
+    then
+        String columnName = $context.getFormula().substring(4, $context.getFormula().length() - 1);
+        double sum = 0;
+
+        for (int i = 0; i < $tableModel.getRowCount(); i++) {
+            Object value = $tableModel.getValueAt(i, getColumnIndex($tableModel, columnName));
+            if (value instanceof Number) {
+                sum += ((Number)value).doubleValue();
+            }
+        }
+        result.setValue(sum);
+end
+
+// Regla para manejar fórmulas LOOKUP
+rule "Lookup formula rule"
+    when
+        $context : FormulaContext(formula.startsWith("LOOKUP(") && formula.endsWith(")"))
+        $conn : java.sql.Connection() from $context.getContext().get("dbConnection")
+    then
+        String[] parts = $context.getFormula().substring(7, $context.getFormula().length() - 1).split(",");
+        if (parts.length == 4) {
+            String tableName = parts[0].trim();
+            String keyColumn = parts[1].trim();
+            String valueColumn = parts[2].trim();
+            String keyValue = parts[3].trim();
+
+            try {
+                java.sql.PreparedStatement stmt = $conn.prepareStatement(
+                    "SELECT " + valueColumn + " FROM " + tableName + " WHERE " + keyColumn + " = ?");
+                stmt.setString(1, keyValue);
+                java.sql.ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()) {
+                    result.setValue(rs.getObject(1));
+                }
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+                result.setValue("LOOKUP_ERROR: " + e.getMessage());
+            }
+        }
+end
+
+// Regla para manejar referencias a columnas (COLUMN:)
+rule "Column reference rule"
+    when
+        $context : FormulaContext(formula.startsWith("COLUMN:"))
+        $currentRow : ResultSet() from $context.getContext().get("currentRow")
+    then
+        String columnName = $context.getFormula().substring(7);
+        try {
+            result.setValue($currentRow.getObject(columnName));
+        } catch (Exception e) {
+            result.setValue("COLUMN_ERROR: " + e.getMessage());
+        }
+end
+
+// Regla para fórmulas matemáticas
+rule "Math expression rule"
+    when
+        $context : FormulaContext(formula.matches(".*[+\\-*/].*"))
+    then
+        // Implementación simplificada - en producción usaría un parser real
+        String expr = $context.getFormula();
+        try {
+            if (expr.contains("+")) {
+                String[] parts = expr.split("\\+");
+                double a = getValue(parts[0].trim(), $context.getContext());
+                double b = getValue(parts[1].trim(), $context.getContext());
+                result.setValue(a + b);
+            } else if (expr.contains("-")) {
+                String[] parts = expr.split("-");
+                double a = getValue(parts[0].trim(), $context.getContext());
+                double b = getValue(parts[1].trim(), $context.getContext());
+                result.setValue(a - b);
+            } else if (expr.contains("*")) {
+                String[] parts = expr.split("\\*");
+                double a = getValue(parts[0].trim(), $context.getContext());
+                double b = getValue(parts[1].trim(), $context.getContext());
+                result.setValue(a * b);
+            } else if (expr.contains("/")) {
+                String[] parts = expr.split("/");
+                double a = getValue(parts[0].trim(), $context.getContext());
+                double b = getValue(parts[1].trim(), $context.getContext());
+                result.setValue(a / b);
+            }
+        } catch (Exception e) {
+            result.setValue("MATH_ERROR: " + e.getMessage());
+        }
+end
+
+// Función helper para obtener índice de columna
+function int getColumnIndex(AbstractTableModel model, String columnName) {
+    for (int i = 0; i < model.getColumnCount(); i++) {
+        if (model.getColumnName(i).equalsIgnoreCase(columnName)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Función helper para evaluar expresiones
+function double getValue(String expr, Map<String, Object> context) {
+    if (expr.startsWith("COLUMN:")) {
+        String columnName = expr.substring(7);
+        try {
+            ResultSet rs = (ResultSet) context.get("currentRow");
+            Object value = rs.getObject(columnName);
+            return value instanceof Number ? ((Number)value).doubleValue() : 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+    try {
+        return Double.parseDouble(expr);
+    } catch (NumberFormatException e) {
+        return 0;
+    }
+}

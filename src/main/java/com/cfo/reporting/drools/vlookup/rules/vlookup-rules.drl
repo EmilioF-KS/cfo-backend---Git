@@ -1,0 +1,40 @@
+import com.drools.vlookup.model.requests.LookupRequest
+import com.drools.vlookup.model.results.LookupResult
+import com.drools.vlookup.model.data.DataTable
+import com.drools.vlookup.model.data.DataRow
+
+rule "Búsqueda exacta en tabla"
+    when
+        $request : LookupRequest(
+            $value : lookupValue,
+            $table : tableName,
+            $column : columnName
+        )
+        $tableData : DataTable(name == $table)
+        $row : DataRow(
+            tableName == $table,
+            containsValue("id", $value)  // Asume que buscas por columna "id"
+        )
+    then
+        Object resultValue = $row.get($column);
+        insert(new LookupResult($request, resultValue));
+        System.out.println("[DROOLS] Match found: " + $value + " -> " + resultValue);
+end
+
+rule "Búsqueda aproximada"
+    when
+        $request : LookupRequest(
+            $value : lookupValue,
+            $table : tableName,
+            $column : columnName
+        )
+        $tableData : DataTable(name == $table)
+        $row : DataRow(
+            tableName == $table,
+            containsPartial($column, $value.toString())
+        )
+    then
+        Object resultValue = $row.get($column);
+        insert(new LookupResult($request, resultValue));
+        System.out.println("[DROOLS] Partial match: " + $value + " -> " + resultValue);
+end

@@ -1,6 +1,8 @@
 package com.cfo.reporting.service;
 
 import com.cfo.reporting.dto.ScreenDTO;
+import com.cfo.reporting.model.Concept;
+import com.cfo.reporting.model.Header;
 import com.cfo.reporting.model.Screen;
 import com.cfo.reporting.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,16 @@ public class DynamicScreensService {
     FormulaRepository formulaRepository;
 
     public List<Screen> getAllScreens() {
-        return screenRepository.findALlWithoutAssociations();
+        return screenRepository.findAll();
     }
 
+    public List<Concept> getAllConcepts(String screenId) {
+
+        return conceptRepository.allConceptsByScreenId(screenId);
+    }
+
+
+    public List<Header> getAllHeaders(String screendId) {
+        return headersRepository.allHeadersByScreenId(screendId);
+    }
 }
