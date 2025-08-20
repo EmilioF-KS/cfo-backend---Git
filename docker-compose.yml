@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  cfonetwork:  # Define a custom network
+    driver: bridge
+
 services:
   mysql:
     image: mysql:8.0
@@ -12,6 +16,9 @@ services:
     ports:
       - "32567:3306"
     
+    networks:
+      - cfonetwork
+
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql  
       - mysql-data:/var/lib/mysql
@@ -28,6 +35,11 @@ services:
     
     ports:
       - "8083:8090"
+      
+    
+    networks:
+      - cfonetwork
+
 
 volumes:
   mysql-data:
