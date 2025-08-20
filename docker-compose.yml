@@ -17,7 +17,7 @@ services:
 
   springboot-app:
     build: .
-    container_name: cfo-springboot-app
+    container_name: cfospringboot
     depends_on:
       - mysql
     environment:
