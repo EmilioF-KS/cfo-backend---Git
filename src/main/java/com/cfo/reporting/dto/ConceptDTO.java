@@ -13,5 +13,9 @@ import java.util.List;
 public class ConceptDTO {
     private Long id;
     private Screen screen;
+    private String conceptName;
+    private String conceptLabel;
+    private int conceptOrder;
+    private boolean isFilter;
     private List<ConceptDetail> detalles;
 }

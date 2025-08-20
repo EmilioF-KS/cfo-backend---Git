@@ -5,6 +5,7 @@ import com.cfo.reporting.exception.DataProcessingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 
 import org.hibernate.Session;
@@ -48,6 +49,14 @@ public class BulkRepositoryImpl implements BulkRepository {
         long count = ((Number)session.createNativeQuery(query).getSingleResult()).longValue();
         return count;
     }
+
+//    public List<Tuple>  recordsFromTable(String queryTable,String glPeriod) {
+//        Session session = entityManager.unwrap(Session.class);
+//        entityManager.getMetamodel().entity()
+//          Query jpaQuery = entityManager.createNativeQuery(queryTable, Tuple.class);
+//          jpaQuery.setParameter(1,glPeriod);
+//          return jpaQuery.getResultList();
+//    }
 
     public Map<String,Object> valuesForQuery(String query) {
         Session session = entityManager.unwrap(Session.class);

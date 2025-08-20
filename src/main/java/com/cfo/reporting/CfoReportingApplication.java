@@ -35,7 +35,7 @@ public class CfoReportingApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 
-		detailParserService.allDetailsCalculated("scr_worksheet","202503",8);
+	//	detailParserService.allDetailsCalculated("scr_worksheet","202503",8);
 		// Step 1: Compile and load DRL rules
 //		KieServices kieServices = KieServices.Factory.get();
 //		KieFileSystem kieFileSystem = kieServices.newKieFileSystem();

@@ -25,8 +25,6 @@ public class ImportingDataController {
 
     @Autowired
     UpdatedTablesService  updatedTablesService;
-    @Autowired
-    DynamicScreensService  dynamicScreensService;
 
     @Autowired
     FileStorageService fileStorageService;
@@ -35,21 +33,6 @@ public class ImportingDataController {
     public List<UpdateTables> getTablesToImport() {
       return updatedTablesService.allUpdatedTables();
 
-    }
-
-    @GetMapping("/screens")
-    public ApiResponse<List<Screen>> allScreens() {
-        return new ApiResponse<>(dynamicScreensService.getAllScreens());
-    }
-
-    @GetMapping("/headers/{screenId}")
-    public ApiResponse<List<Header>> screenHeaders(@PathVariable("screenId") String screenId) {
-        return new ApiResponse<>(dynamicScreensService.getAllHeaders(screenId));
-    }
-
-    @GetMapping("/concepts/{screenId}")
-    public ApiResponse<List<Concept>> screenConcepts(@PathVariable("screenId") String screenId) {
-        return new ApiResponse<>(dynamicScreensService.getAllConcepts(screenId));
     }
 
     @PostMapping("/files")

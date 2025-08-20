@@ -14,5 +14,9 @@ public interface ConceptRepository extends JpaRepository<Concept,Long> {
     @Query(value="Select * from tbl_cfo_screen_concepts where screen_id = :screenId", nativeQuery=true)
     List<Concept> allConceptsByScreenId(@Param("screenId") String screenId);
 
+    @Query(value="Select * from tbl_cfo_screen_concepts where screen_id = :screenId" +
+            " and concept_id = :conceptId", nativeQuery=true)
+    Concept allConceptsByScreenIdConceptId(@Param("screenId") String screenId,
+                                                          @Param("conceptId") int conceptId);
 
 }

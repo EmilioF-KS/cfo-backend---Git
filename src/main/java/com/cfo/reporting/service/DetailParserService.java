@@ -8,6 +8,7 @@ import com.cfo.reporting.repository.ConceptRepository;
 import com.cfo.reporting.repository.ScreenRepository;
 import com.cfo.reporting.utils.CommonsListCombiner;
 import com.cfo.reporting.utils.DynamicLookupProcessor;
+import com.cfo.reporting.utils.SubtractMonth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,11 +31,11 @@ public class DetailParserService {
 
 
     public List<ConceptDetailRecord> allDetailsCalculated(String screenName,String glPeriod,int concept_id) {
-
+        List<ConceptDetailRecord> listDetails = new ArrayList<>();
         String sqlGLDAYSCurrent = "Select for_branch as id,tot_current_balance as value from " +
                 "tbl_cfo_gldays where gl_period = '"+glPeriod+"'";
         String sqlGLDAYSPrevious = "Select for_branch as id,tot_current_balance as value from " +
-                "tbl_cfo_gldays where gl_period = '202502'";
+                "tbl_cfo_gldays where gl_period = '"+ SubtractMonth.subtractOneMonth(glPeriod) +"'";
         Map<String,Map<String,Object>> tables = new HashMap<>();
         Map<String,Object> currentValues = bulkRepositoryImpl.valuesForQuery(sqlGLDAYSCurrent);
         Map<String,Object> previousValues = bulkRepositoryImpl.valuesForQuery(sqlGLDAYSPrevious);
@@ -44,6 +45,9 @@ public class DetailParserService {
         //
         List<DetailFormulaResult> allDetailFormulaRes =
                 conceptDetailRepository.allDetailsByScreenAndConcept(screenName,concept_id);
+        if (allDetailFormulaRes == null || allDetailFormulaRes.size() == 0) {
+           return listDetails;
+        }
         //
         List<DynamicLookupProcessor.DynamicValue> allResultados  = allDetailFormulaRes
                 .stream()
