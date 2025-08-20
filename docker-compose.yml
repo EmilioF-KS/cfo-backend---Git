@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: cfomysqldb
+    container_name: cfomysqldbmx
     environment:
       MYSQL_ROOT_PASSWORD: theksqu4r3gr0upMx
       MYSQL_DATABASE: cfo_reporting
@@ -16,11 +16,11 @@ services:
 
   springboot-app:
     build: .
-    container_name: cfospringboot
+    container_name: cfospringbootmx
     depends_on:
       - mysql
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://cfomysql-db:3306/cfo_reporting          
+      SPRING_DATASOURCE_URL: jdbc:mysql://cfomysqldbmx:3306/cfo_reporting          
       SPRING_DATASOURCE_USERNAME: cfo_user
       SPRING_DATASOURCE_PASSWORD: theksqu4r3gr0upMx
     
