@@ -7,7 +7,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: theksqu4r3gr0upMx
       MYSQL_DATABASE: cfo_reporting
-      MYSQL_USER: jenkins_user
+      MYSQL_USER: cfo_user
       MYSQL_PASSWORD: theksqu4r3gr0upMx
     ports:
       - "32567:3306"
