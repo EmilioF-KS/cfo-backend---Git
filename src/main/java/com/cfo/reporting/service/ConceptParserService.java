@@ -29,6 +29,9 @@ public class ConceptParserService {
     DetailParserService detailParserService;
 
     @Autowired
+    DynamicQueryService dynamicQueryService;
+
+    @Autowired
     private BulkRepositoryImpl bulkRepository;
 
     public List<?> allConceptsScreen(String screenId, String glPeriod) {
@@ -38,13 +41,16 @@ public class ConceptParserService {
         List<Concept> allConcepts = conceptRepository.allConceptsByScreenId(screenId);
         List<ConceptResultDTO> allResultsConcepts = new ArrayList<>();
         for(Concept concept : allConcepts)  {
-//            if (concept.getQuery_concepts().toLowerCase().contains("select")) {
-//                List<Map<String,Object>> listDetails = new ArrayList<>();
-//               return listDetails;
-//                       //bulkRepositoryImpl.recordsFromTable(concept.getQuery_concepts(),glPeriod));
-//            }
-            allResultsConcepts.add(conceptWithDetails
-                    (screenId,glPeriod,(int)concept.getConcept_id()));
+            if (concept.getQuery_concepts().toLowerCase().contains("select")) {
+                List<Map<String,Object>> listDetails = new ArrayList<>();
+                listDetails = dynamicQueryService.executeDynamicQuery(
+                        concept.getQuery_concepts()+" where gl_period ='"+glPeriod+"'","tbl_cfo_ddalst");
+
+               return listDetails;
+            } else {
+                allResultsConcepts.add(conceptWithDetails
+                        (screenId, glPeriod, (int) concept.getConcept_id()));
+            }
         }
         return allResultsConcepts;
     }
