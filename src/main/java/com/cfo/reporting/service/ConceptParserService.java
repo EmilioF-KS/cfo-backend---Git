@@ -41,10 +41,10 @@ public class ConceptParserService {
         List<Concept> allConcepts = conceptRepository.allConceptsByScreenId(screenId);
         List<ConceptResultDTO> allResultsConcepts = new ArrayList<>();
         for(Concept concept : allConcepts)  {
-            if (concept.getQuery_concepts().toLowerCase().contains("select")) {
+            if (concept.getQuery_concepts() != null && concept.getQuery_concepts().toLowerCase().contains("select")) {
                 List<Map<String,Object>> listDetails = new ArrayList<>();
                 listDetails = dynamicQueryService.executeDynamicQuery(
-                        concept.getQuery_concepts()+" where gl_period ='"+glPeriod+"'","tbl_cfo_ddalst");
+                        concept.getQuery_concepts()+" where gl_period ='"+glPeriod+"'",concept.getConcept_label());
 
                return listDetails;
             } else {
