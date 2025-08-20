@@ -7,12 +7,13 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: theksqu4r3gr0upMx
       MYSQL_DATABASE: cfo_reporting
-      MYSQL_USER: cfo_user
+      MYSQL_USER: cfosql_user
       MYSQL_PASSWORD: theksqu4r3gr0upMx
     ports:
       - "32567:3306"
     
     volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  
       - mysql-data:/var/lib/mysql
 
   springboot-app:
@@ -22,7 +23,7 @@ services:
       - mysql
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://cfomysqldbmx:3306/cfo_reporting          
-      SPRING_DATASOURCE_USERNAME: cfo_user
+      SPRING_DATASOURCE_USERNAME: cfosql_user
       SPRING_DATASOURCE_PASSWORD: theksqu4r3gr0upMx
     
     ports:
