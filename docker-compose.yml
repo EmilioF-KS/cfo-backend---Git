@@ -11,7 +11,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: theksqu4r3gr0upMx
       MYSQL_DATABASE: cfo_reporting
-      MYSQL_USER: cfosqlmx_user
+      MYSQL_USER: root
       MYSQL_PASSWORD: theksqu4r3gr0upMx
     ports:
       - "32567:3306"
@@ -30,7 +30,7 @@ services:
       - mysql
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://cfomysqldbmx:3306/cfo_reporting          
-      SPRING_DATASOURCE_USERNAME: cfosqlmx_user
+      SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: theksqu4r3gr0upMx
     
     ports:
