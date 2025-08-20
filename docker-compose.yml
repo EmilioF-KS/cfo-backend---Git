@@ -4,7 +4,6 @@ services:
   mysql:
     image: mysql:8.0
     container_name: cfomysql-db
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: theksqu4r3gr0upMx
       MYSQL_DATABASE: cfo_reporting
@@ -24,8 +23,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://cfomysql-db:3306/cfo_reporting          
       SPRING_DATASOURCE_USERNAME: cfo_user
       SPRING_DATASOURCE_PASSWORD: theksqu4r3gr0upMx
-    restart: always
-
+    
     ports:
       - "8083:8090"
 
