@@ -4,34 +4,30 @@ services:
   mysql:
     image: mysql:8.0
     container_name: cfo-mysql-db
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: theksqu4r3gr0upMx
       MYSQL_DATABASE: cfo_reporting
       MYSQL_USER: jenkins_user
       MYSQL_PASSWORD: theksqu4r3gr0upMx
     ports:
-      - "33568:3306"
+      - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-    networks:
-      - backend
 
   springboot-app:
     build: .
+    container_name: cfo-springboot-app
     depends_on:
       - mysql
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/cfo_reporting          
-      SPRING_DATASOURCE_USERNAME: jenkins_user
+      SPRING_DATASOURCE_USERNAME: cfo_user
       SPRING_DATASOURCE_PASSWORD: theksqu4r3gr0upMx
+    restart: always
 
     ports:
       - "8091:8089"
-    networks:
-      - backend
 
 volumes:
   mysql-data:
-
-networks:
-  backend:
