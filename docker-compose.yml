@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: cfomysql-db
+    container_name: cfomysqldb
     environment:
       MYSQL_ROOT_PASSWORD: theksqu4r3gr0upMx
       MYSQL_DATABASE: cfo_reporting
