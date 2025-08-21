@@ -28,6 +28,9 @@ services:
     container_name: cfospringbootmx
     depends_on:
       - mysql
+      
+    command: ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "reporting-0.0.1-SNAPSHOT.jar"]
+
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/cfo_reporting          
       SPRING_DATASOURCE_USERNAME: cfo_user
