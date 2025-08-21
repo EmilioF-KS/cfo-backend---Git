@@ -14,7 +14,7 @@ services:
       MYSQL_USER: cfo_user
       MYSQL_PASSWORD: theksqu4r3gr0upMx
     ports:
-      - "3306:3306"
+      - "32456:3306"
     
     networks:
       - cfonetwork
