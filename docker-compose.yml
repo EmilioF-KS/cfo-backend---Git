@@ -35,10 +35,15 @@ services:
     
     ports:
       - "8080:8080"
-      
     
     networks:
       - cfonetwork
+
+    volumes:
+      - ./wait-for-it.sh:/wait-for-it.sh
+      - ./target/app.jar:/app.jar
+
+    working_dir: /
 
 
 volumes:
