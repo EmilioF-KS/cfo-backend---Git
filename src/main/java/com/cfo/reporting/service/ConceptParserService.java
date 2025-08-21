@@ -8,6 +8,7 @@ import com.cfo.reporting.importing.BulkRepositoryImpl;
 import com.cfo.reporting.model.Concept;
 import com.cfo.reporting.model.ConceptDetail;
 import com.cfo.reporting.repository.ConceptRepository;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -65,10 +67,6 @@ public class ConceptParserService {
         Concept concept= conceptRepository.allConceptsByScreenIdConceptId(screenId,conceptId);
 
 //
-        System.out.println("Sumatoria para el concept "+screenId+" "+concept.getConcept_id()+" total "+
-                allDetailsByConcept
-                        .stream()
-                        .mapToDouble(ConceptDetailRecord::totPreviousBalance).sum());
 
         //
         ConceptResultDTO conceptResultDTO  = new ConceptResultDTO();

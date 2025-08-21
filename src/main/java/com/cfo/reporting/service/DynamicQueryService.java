@@ -5,11 +5,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional
@@ -18,19 +14,47 @@ public class DynamicQueryService {
     @PersistenceContext
     private EntityManager entityManager;
 
+    public static void main(String[] args) {
+        List<Map<String,Object>> datos = new ArrayList<>();
+        Map<String,Object> mapa1 = new TreeMap<>();
+        mapa1.put("nombre","Maria");
+        mapa1.put("edad",25);
+        Map<String,Object> mapa2 = new HashMap<>();
+        mapa2.put("nombre","Pedro");
+        mapa2.put("edad",25);
+
+
+        datos.add(mapa1);
+        datos.add(mapa2);
+        for (int i=0;i < datos.size();i++) {
+            datos.get(i).put("orden",i+1);
+        }
+
+        System.out.println("List con orden "+datos);
+
+
+
+    }
+
     /**
      * Ejecuta una consulta dinámica y retorna los resultados con comentarios como nombres de columna
      */
-    public List<Map<String, Object>> executeDynamicQueryWithComments(String dynamicQuery, String tableName) {
-        // Ejecutar la consulta dinámica
-        List<Map<String, Object>> rawResults = executeDynamicQuery(dynamicQuery,tableName);
-
-        // Obtener los comentarios de las columnas
-        Map<String, String> columnComments = getColumnComments(tableName);
-
-        // Mapear los resultados con los comentarios como nombres de columna
-        return mapResultsWithComments(rawResults, columnComments);
-    }
+//    public List<Map<String, Object>> executeDynamicQueryWithComments(String dynamicQuery, String tableName) {
+//        // Ejecutar la consulta dinámica
+//        List<TreeMap<Integer,Map<String, Object>>> rawResults = null;
+//        List<String> columnComments=null;
+//        try {
+//            rawResults = executeDynamicQuery(dynamicQuery, tableName);
+//
+//            // Obtener los comentarios de las columnas
+//            columnComments = getColumnComments(tableName);
+//        }catch (Exception ex) {
+//            System.out.println(ex.getCause());
+//        }
+//
+//        // Mapear los resultados con los comentarios como nombres de columna
+//        return mapResultsWithComments(rawResults, columnComments);
+//    }
 
     /**
      * Ejecuta una consulta dinámica y retorna los resultados crudos
@@ -40,21 +64,32 @@ public class DynamicQueryService {
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
-        System.out.println("Longitud del results "+results.size());
 
         // Obtener nombres de columnas
-        Map<String,String> columnNames = getColumnComments(tableName);
-        //getColumnNamesFromQuery(queryString);
-        List<String> listNames = new ArrayList<>(columnNames.values());
-
-        // Convertir a List<Map<String, Object>>
-        return convertToMapList(results, listNames);
+        List<String> columnNames = getColumnComments(tableName);
+        List<Map<String, Object>> listFinalResult =  listResultsMap(convertToMapList(results, columnNames));
+        return listFinalResult;
     }
 
+    private List<Map<String,Object>> listResultsMap(List<TreeMap<Integer,Map<String,Object>>> listToConvert) {
+        List<Map<String,Object>> listResults = new ArrayList<>();
+        int index = 0;
+        while (index < listToConvert.size()) {
+            TreeMap<Integer,Map<String,Object>> treeToEmpty = listToConvert.get(index);
+            Map<String,Object> unitedMap= new LinkedHashMap<>();
+            while (!treeToEmpty.isEmpty()) {
+                Map.Entry<Integer, Map<String, Object>> firstEntry = treeToEmpty.pollFirstEntry();
+                unitedMap.putAll(firstEntry.getValue());
+            }
+            index++;
+            listResults.add(unitedMap);
+        }
+        return listResults;
+    }
     /**
      * Obtiene los comentarios de las columnas de una tabla
      */
-    public Map<String, String> getColumnComments(String tableName) {
+    public List<String> getColumnComments(String tableName) {
         String schema = getCurrentSchema();
 
         String sql = "SELECT COLUMN_NAME, COLUMN_COMMENT " +
@@ -68,11 +103,11 @@ public class DynamicQueryService {
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
 
-        Map<String, String> comments = new HashMap<>();
+        List<String> comments = new ArrayList<>();
         for (Object[] result : results) {
-            String columnName = (String) result[0];
-            String comment = result[1] != null ? (String) result[1] : columnName;
-            comments.put(columnName.toUpperCase(), comment);
+            //String columnName = (String) result[0];
+            String comment = result[1] != null ? (String) result[1] : "No description ";
+            comments.add(comment);
         }
 
         return comments;
@@ -127,15 +162,17 @@ public class DynamicQueryService {
     /**
      * Convierte resultados a List<Map<String, Object>>
      */
-    private List<Map<String, Object>> convertToMapList(List<Object[]> results, List<String> columnNames) {
-        List<Map<String, Object>> mappedResults = new ArrayList<>();
+    private List<TreeMap<Integer,Map<String, Object>>> convertToMapList(List<Object[]> results, List<String> columnNames) {
+        List<TreeMap<Integer,Map<String, Object>>> mappedResults = new ArrayList<>();
 
         for (Object[] row : results) {
-            Map<String, Object> rowMap = new HashMap<>();
+            TreeMap<Integer,Map<String, Object>> treeColMap = new TreeMap<>();
             for (int i = 0; i < row.length && i < columnNames.size(); i++) {
-                rowMap.put(columnNames.get(i), row[i]);
+                Map<String,Object> mapaRow = new HashMap<>();
+                mapaRow.put(columnNames.get(i), row[i]);
+                treeColMap.put(i+1,mapaRow);
             }
-            mappedResults.add(rowMap);
+            mappedResults.add(treeColMap);
         }
 
         return mappedResults;
@@ -144,28 +181,28 @@ public class DynamicQueryService {
     /**
      * Mapea resultados usando comentarios como nombres de columna
      */
-    private List<Map<String, Object>> mapResultsWithComments(
-            List<Map<String, Object>> rawResults,
-            Map<String, String> columnComments) {
-
-        List<Map<String, Object>> finalResults = new ArrayList<>();
-
-        for (Map<String, Object> rawRow : rawResults) {
-            Map<String, Object> finalRow = new HashMap<>();
-
-            for (Map.Entry<String, Object> entry : rawRow.entrySet()) {
-                String columnName = entry.getKey();
-                String displayName = columnComments.getOrDefault(
-                        columnName.toUpperCase(), columnName);
-
-                finalRow.put(displayName, entry.getValue());
-            }
-
-            finalResults.add(finalRow);
-        }
-
-        return finalResults;
-    }
+//    private List<Map<String, Object>> mapResultsWithComments(
+//            List<TreeMap<Integer,Map<String, Object>>> rawResults,
+//            List<String> columnComments) {
+//
+//        List<Map<String, Object>> finalResults = new ArrayList<>();
+//
+//        for (TreeMap<Integer,Map<String, Object>> rawRow : rawResults) {
+//            Map<String, Object> finalRow = new HashMap<>();
+//
+//            int index = 0;
+//            for (Map.Entry<String, Object> entry : rawRow.entrySet()) {
+//                String columnName = entry.getKey();
+//                String displayName = columnComments.get(index);
+//                finalRow.put(displayName, entry.getValue());
+//                index++;
+//            }
+//
+//            finalResults.add(finalRow);
+//        }
+//
+//        return finalResults;
+//    }
 
     /**
      * Método auxiliar para obtener nombres de columnas cuando se usa SELECT *
