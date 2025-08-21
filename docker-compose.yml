@@ -1,16 +1,47 @@
 version: '3.8'
 
+networks:
+  cfonetwork:  # Define a custom network
+    driver: bridge
+
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: cfomysqldbmx
+    environment:
+      MYSQL_ROOT_PASSWORD: theksqu4r3gr0upMx
+      MYSQL_DATABASE: cfo_reporting
+      MYSQL_USER: cfo_user
+      MYSQL_PASSWORD: theksqu4r3gr0upMx
+    ports:
+      - "32456:3306"
+    
+    networks:
+      - cfonetwork
+
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  
+      - mysql-data:/var/lib/mysql
 
   springboot-app:
     build: .
     container_name: cfospringbootmx
+    depends_on:
+      - mysql
       
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/cfo_reporting          
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/cfo_reporting          
       SPRING_DATASOURCE_USERNAME: cfo_user
       SPRING_DATASOURCE_PASSWORD: theksqu4r3gr0upMx
     
     ports:
-      - "8080:8080"
+      - "8081:8080"
     
+    networks:
+      - cfonetwork
+
+    working_dir: /
+
+
+volumes:
+  mysql-data:
