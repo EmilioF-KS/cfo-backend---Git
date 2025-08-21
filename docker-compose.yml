@@ -7,7 +7,7 @@ networks:
 services:
   mysql:
     image: mysql:8.0
-    container_name: cfomysqldbmx1
+    container_name: cfomysqldbmx
     environment:
       MYSQL_ROOT_PASSWORD: theksqu4r3gr0upMx
       MYSQL_DATABASE: cfo_reporting
@@ -25,7 +25,7 @@ services:
 
   springboot-app:
     build: .
-    container_name: cfospringbootmx1
+    container_name: cfospringbootmx
     depends_on:
       - mysql
       
