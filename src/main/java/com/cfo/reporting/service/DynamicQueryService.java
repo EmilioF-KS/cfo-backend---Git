@@ -169,7 +169,7 @@ public class DynamicQueryService {
             TreeMap<Integer,Map<String, Object>> treeColMap = new TreeMap<>();
             for (int i = 0; i < row.length && i < columnNames.size(); i++) {
                 Map<String,Object> mapaRow = new HashMap<>();
-                mapaRow.put(columnNames.get(i), row[i]);
+                mapaRow.put(columnNames.get(i).toString().trim(), row[i]);
                 treeColMap.put(i+1,mapaRow);
             }
             mappedResults.add(treeColMap);

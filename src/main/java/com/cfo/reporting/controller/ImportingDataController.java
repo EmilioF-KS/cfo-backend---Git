@@ -2,6 +2,7 @@ package com.cfo.reporting.controller;
 
 import com.cfo.reporting.dto.ApiResponse;
 import com.cfo.reporting.dto.FileProcessingDTO;
+import com.cfo.reporting.dto.GlPeriodDTO;
 import com.cfo.reporting.exception.DataProcessingException;
 import com.cfo.reporting.model.Concept;
 import com.cfo.reporting.model.Header;
@@ -9,6 +10,7 @@ import com.cfo.reporting.model.Screen;
 import com.cfo.reporting.model.UpdateTables;
 import com.cfo.reporting.service.DynamicScreensService;
 import com.cfo.reporting.service.FileStorageService;
+import com.cfo.reporting.service.GlPeriodService;
 import com.cfo.reporting.service.UpdatedTablesService;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +31,18 @@ public class ImportingDataController {
     @Autowired
     FileStorageService fileStorageService;
 
+    @Autowired
+    GlPeriodService  glPeriodService;
+
     @GetMapping("/tablestoimport")
     public List<UpdateTables> getTablesToImport() {
       return updatedTablesService.allUpdatedTables();
+
+    }
+
+    @GetMapping("/glperiods")
+    public ApiResponse<?> getAllPeriods() {
+        return new ApiResponse<>(glPeriodService.allPeriods());
 
     }
 
