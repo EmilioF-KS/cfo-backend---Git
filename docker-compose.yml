@@ -40,8 +40,6 @@ services:
     networks:
       - cfonetwork
 
-    working_dir: /
-
 
 volumes:
   mysql-data:
