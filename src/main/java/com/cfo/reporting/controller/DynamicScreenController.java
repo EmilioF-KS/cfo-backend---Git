@@ -9,15 +9,13 @@ import com.cfo.reporting.service.ConceptParserService;
 import com.cfo.reporting.service.DynamicScreensService;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("api/dynamic")
+@CrossOrigin(origins="*")
 public class DynamicScreenController {
     @Autowired
     DynamicScreensService dynamicScreensService;

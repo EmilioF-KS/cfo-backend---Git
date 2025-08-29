@@ -23,6 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/import")
+@CrossOrigin(origins="*")
 public class ImportingDataController {
 
     @Autowired
