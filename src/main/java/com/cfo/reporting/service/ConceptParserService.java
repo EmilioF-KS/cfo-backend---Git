@@ -17,9 +17,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
+import com.cfo.reporting.config.ApplicationConstants;
 
 @Service
 public class ConceptParserService {
@@ -39,35 +37,25 @@ public class ConceptParserService {
     public List<?> allConceptsScreen(String screenId, String glPeriod) {
         //
          // Validates if the concept has a Query to execute
-         //
-        List<Concept> allConcepts = conceptRepository.allConceptsByScreenId(screenId);
-        List<ConceptResultDTO> allResultsConcepts = new ArrayList<>();
-        for(Concept concept : allConcepts)  {
-            if (concept.getQuery_concepts() != null && concept.getQuery_concepts().toLowerCase().contains("select")) {
-                List<Map<String,Object>> listDetails = new ArrayList<>();
-                listDetails = dynamicQueryService.executeDynamicQuery(
-                        concept.getQuery_concepts()+" where gl_period ='"+glPeriod+"'",concept.getConcept_label());
-
-               return listDetails;
+        List<?> allResultsConcepts = new ArrayList<>();
+        //
+        try {
+            if (hasSubconcepts(screenId)) {
+                allResultsConcepts = allConceptsWithSubconcepts(screenId, glPeriod);
             } else {
-                allResultsConcepts.add(conceptWithDetails
-                        (screenId, glPeriod, (int) concept.getConcept_id()));
+                allResultsConcepts = allConceptsWithoutSubconcepts(screenId, glPeriod);
             }
         }
-        return allResultsConcepts;
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+       return allResultsConcepts;
     }
 
-    public ConceptResultDTO conceptWithDetails(String screenId, String glPeriod,int conceptId) {
-
-
+    private ConceptResultDTO conceptWithDetails(String screenId, String glPeriod,int conceptId) {
         List<ConceptDetailRecord> allDetailsByConcept =
                 detailParserService.allDetailsCalculated(screenId,glPeriod,conceptId);
-
-
-        Concept concept= conceptRepository.allConceptsByScreenIdConceptId(screenId,conceptId);
-
-//
-
+       Concept concept= conceptRepository.allConceptsByScreenIdConceptId(screenId,conceptId);
         //
         ConceptResultDTO conceptResultDTO  = new ConceptResultDTO();
         conceptResultDTO.setConceptId(concept.getConcept_id());
@@ -92,5 +80,91 @@ public class ConceptParserService {
 
         return conceptResultDTO;
     }
+
+    private List<?> allConceptsWithoutSubconcepts(String screenId, String glPeriod) {
+        List<Concept> allConcepts = new ArrayList<>();
+        List<ConceptResultDTO> allResultsConcepts = new ArrayList<>();
+        allConcepts = conceptRepository.allConceptsByScreenId(screenId);
+        for(Concept concept : allConcepts)  {
+            if (concept.getQuery_concepts() != null && concept.getQuery_concepts().toLowerCase().contains("select")) {
+                List<Map<String,Object>> listDetails = new ArrayList<>();
+                listDetails = dynamicQueryService.executeDynamicQuery(
+                        concept.getQuery_concepts()+" where gl_period ='"+glPeriod+"'",concept.getConcept_label());
+                return listDetails;
+            } {
+                allResultsConcepts.add(conceptWithDetails
+                        (screenId, glPeriod, (int) concept.getConcept_id()));
+            }
+        }
+
+        return allConcepts;
+    }
+
+    private List<?> allConceptsWithSubconcepts(String screenId, String glPeriod) throws Exception{
+        List<Concept> allConceptsReults = new ArrayList<>();
+        List<Concept> allParentConcepts = conceptRepository.allParentConcepts(screenId);
+        List<ConceptResultDTO> allResultsConcepts = new ArrayList<>();
+        List<ConceptResultDTO> resultsParentSubConcepts = new ArrayList<>();
+        ConceptResultDTO parentConceptDTO = new ConceptResultDTO();
+        for (Concept concept : allParentConcepts ) {
+            List<Concept> allSubconcepts =
+                    conceptRepository.allSubConceptsByConceptId(screenId,(int)concept.getConcept_id());
+            for (Concept subconcept : allSubconcepts) {
+                resultsParentSubConcepts.add(conceptWithDetails
+                        (screenId, glPeriod, (int) subconcept.getConcept_id()));
+            }
+            // get total by Parent
+            if (resultsParentSubConcepts.size() > 0 ) {
+                parentConceptDTO = addingSubconcepts(concept,resultsParentSubConcepts);
+            }
+            else {
+                parentConceptDTO.setConceptId(concept.getConcept_id());
+                parentConceptDTO.setConceptOrder(concept.getConcept_order());
+                parentConceptDTO.setDescripcion(concept.getConcept_name());
+                parentConceptDTO.setTotBalanceCurrent(0);
+                parentConceptDTO.setTotVariance(0);
+                parentConceptDTO.setTotBalancePrevious(0);
+                parentConceptDTO.setFilter(false);
+            }
+            allResultsConcepts.add(parentConceptDTO);
+            allResultsConcepts.addAll(resultsParentSubConcepts);
+            System.out.println("Current REsults "+resultsParentSubConcepts.size());
+        }
+        return allResultsConcepts;
+    }
+
+
+    private ConceptResultDTO addingSubconcepts(Concept parentConcept,List<ConceptResultDTO> allConcepts) {
+        //
+        ConceptResultDTO conceptResultDTO  = new ConceptResultDTO();
+        conceptResultDTO.setConceptId(parentConcept.getConcept_id());
+        conceptResultDTO.setConceptOrder(parentConcept.getConcept_order());
+        conceptResultDTO.setDescripcion(parentConcept.getConcept_name());
+        conceptResultDTO.setFilter(parentConcept.is_filter());
+
+        double totCurrentBalance = allConcepts
+                .stream()
+                .mapToDouble(ConceptResultDTO::getTotBalanceCurrent).sum();
+        double totPreviousBalance = allConcepts
+                .stream()
+                .mapToDouble(ConceptResultDTO::getTotBalancePrevious).sum();
+
+        double totalVariance = allConcepts
+                .stream()
+                .mapToDouble(ConceptResultDTO::getTotVariance).sum();
+        conceptResultDTO.setTotBalanceCurrent(totCurrentBalance);
+        conceptResultDTO.setTotBalancePrevious(totPreviousBalance);
+        conceptResultDTO.setTotVariance(totalVariance);
+
+        return conceptResultDTO;
+
+    }
+    private boolean hasSubconcepts(String screenId) {
+        String queryForValidatingSubconcepts = ApplicationConstants.queryHasSubconcepts +
+                " and screen_id = '"+screenId+"'";
+        return this.bulkRepository.recordsProcessedByTable(queryForValidatingSubconcepts) > 0;
+    }
+
+
 
 }

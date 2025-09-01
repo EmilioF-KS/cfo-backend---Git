@@ -58,7 +58,6 @@ public class DetailParserService {
                 } )
                 .collect(Collectors.toList());
 
-
         String formula = allDetailFormulaRes.get(0).formulaText();
                 //"VLOOKUP('#{for_branch}', gldays)  -  VLOOKUP('#{for_branch}', prevgldays)";
 
