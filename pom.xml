@@ -37,6 +37,9 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency><dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-logging</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -49,6 +52,11 @@
 			<version>5.2.3</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>5.6.15.Final</version> <!-- Or a newer version compatible with MySQL 8 -->
+		</dependency>
 
 		<!--		<dependency>-->
 <!--			<groupId>org.springframework.boot</groupId>-->
@@ -59,7 +67,8 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.49</version> <!-- Versión compatible con MySQL 5.4 -->
+			<scope>runtime</scope>
+			<version>8.0.33</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -154,6 +163,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.14.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<version>3.1.8</version>
 		</dependency>
 	</dependencies>
 

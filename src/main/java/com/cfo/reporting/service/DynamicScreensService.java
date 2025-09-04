@@ -1,39 +1,21 @@
 package com.cfo.reporting.service;
 
-import com.cfo.reporting.dto.ScreenDTO;
+import com.cfo.reporting.dto.ConceptDetailValuesDTO;
+import com.cfo.reporting.exception.DataScreenProcessingException;
 import com.cfo.reporting.model.Concept;
 import com.cfo.reporting.model.Header;
 import com.cfo.reporting.model.Screen;
-import com.cfo.reporting.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
-public class DynamicScreensService {
-    @Autowired
-    ConceptRepository conceptRepository;
-    @Autowired
-    ConceptDetailRepository conceptDetailRepository;
-    @Autowired
-    ScreenRepository screenRepository;
-    @Autowired
-    HeadersRepository headersRepository;
-    @Autowired
-    FormulaRepository formulaRepository;
+public interface DynamicScreensService {
 
-    public List<Screen> getAllScreens() {
-        return screenRepository.findAll();
-    }
+    public List<Screen> getAllScreens();
+    public List<Concept> getAllConcepts(String screenId) ;
+    public List<Header> getAllHeaders(String screendId) ;
 
-    public List<Concept> getAllConcepts(String screenId) {
+    public ConceptDetailValuesDTO saveConceptDetailValue(ConceptDetailValuesDTO saveceptDetailValuesDTO) throws DataScreenProcessingException;
+    public ConceptDetailValuesDTO updateConceptDetailValue(ConceptDetailValuesDTO saveceptDetailValuesDTO) throws DataScreenProcessingException;
+    public boolean deleteConceptDetailValue(ConceptDetailValuesDTO saveceptDetailValuesDTO) throws DataScreenProcessingException;
 
-        return conceptRepository.allConceptsByScreenId(screenId);
-    }
-
-
-    public List<Header> getAllHeaders(String screendId) {
-        return headersRepository.allHeadersByScreenId(screendId);
-    }
 }

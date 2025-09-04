@@ -1,0 +1,50 @@
+{
+  "pantallas": [
+    {
+      "ScreenCode": "scr_worksheet",
+      "descripcion": "Dashboard principal con múltiples datos",
+      "consultas": [
+        {
+          "name": "gldays",
+          "tabla": "tbl_cfo_gldays",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period :glPeriod",
+          "parametros": [
+            {
+              "nombre": "gl_period",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "gldays",
+          "valorCache": "total",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        },
+        {
+          "name": "prevgldays",
+          "tabla": "tbl_cfo_gldays",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period :glPeriod",
+          "parametros": [
+            {
+              "nombre": "gl_period",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "gldays",
+          "valorCache": "total",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
+    }
+  ]
+}
