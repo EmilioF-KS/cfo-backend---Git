@@ -52,18 +52,16 @@ public class DynamicScreenController {
         return new ApiResponse<>(dynamicScreensService.saveConceptDetailValue(conceptDetailValue));
     }
 
-    @PutMapping("/screens/{screenId}")
+    @PutMapping("/detailsvalues")
     public ApiResponse<?> updateConceptDetaiValue (
-            @PathVariable("screenId") String screenId,
-            @PathVariable("ConceptDetailValue") ConceptDetailValuesDTO conceptDetailValue
+            @RequestBody ConceptDetailValuesDTO conceptDetailValue
     ) throws DataScreenProcessingException {
         return new ApiResponse<>(dynamicScreensService.updateConceptDetailValue(conceptDetailValue));
     }
 
-    @DeleteMapping("/screens/{screenId}/")
+    @DeleteMapping("/detailsvalues")
     public ApiResponse<?> deleteConceptDetaiValue (
-            @PathVariable("screenId") String screenId,
-            @PathVariable("ConceptDetailValue") ConceptDetailValuesDTO conceptDetailValue
+            @RequestBody ConceptDetailValuesDTO conceptDetailValue
     ) throws DataScreenProcessingException {
         return new ApiResponse<>(dynamicScreensService.deleteConceptDetailValue(conceptDetailValue));
     }

@@ -16,7 +16,7 @@ import org.hibernate.annotations.EmbeddedColumnNaming;
 @AllArgsConstructor
 public class ConceptDetailValues {
     //    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "column_value_id", insertable = true,updatable = false)
+    @Column(name = "column_value_id", insertable = true,updatable = true)
     private Long columnValueId;
     @EmbeddedId
     private ConceptDetailValueKey id;

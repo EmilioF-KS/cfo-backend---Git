@@ -74,7 +74,7 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
                 conceptDetailValues.setColumnValue(conceptDetailValuesDTO.getColumnValue());
                 conceptDetailValues.setColumnName(conceptDetailValuesDTO.getColumnName());
                 conceptDetailValuesDTO.setColumnValue(savedConceptDetailValues.getColumnValue());
-                conceptDetailsValuesRepository.delete(conceptDetailValues);
+                conceptDetailsValuesRepository.save(conceptDetailValues);
                 return conceptDetailValuesDTO;
             }
         }  catch(Exception ex) {
@@ -85,32 +85,23 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
 
     @Override
     public ConceptDetailValuesDTO updateConceptDetailValue(ConceptDetailValuesDTO updateConceptDetailValuesDTO) throws DataScreenProcessingException {
-        ConceptDetailValues savedConceptDetailValues = null;
+        ConceptDetailValues updatedConceptDetailValues = null;
         ConceptDetailValuesDTO conceptDetailValuesDTO = null;
         try {
             if (updateConceptDetailValuesDTO.getConceptDetailId() == 0) {
-                conceptDetailValuesDTO = conceptDetailsValuesRepository.findByScreenConceptAndGlPeriod(
-                        updateConceptDetailValuesDTO.getScreenId(),
+                updatedConceptDetailValues = conceptDetailsValuesRepository.findByScreenConceptAndGlPeriod(
                         updateConceptDetailValuesDTO.getConceptId(),
                         updateConceptDetailValuesDTO.getGlPeriod());
             } else {
-                conceptDetailValuesDTO = conceptDetailsValuesRepository.findByScreenConceptDetailAndGlPeriod(
-                        updateConceptDetailValuesDTO.getScreenId(),
+                updatedConceptDetailValues = conceptDetailsValuesRepository.findByScreenConceptDetailAndGlPeriod(
                         updateConceptDetailValuesDTO.getConceptId(),
                         updateConceptDetailValuesDTO.getConceptDetailId(),
                         updateConceptDetailValuesDTO.getGlPeriod());
             }
-            if (conceptDetailValuesDTO != null ) {
-                ConceptDetailValueKey conceptDetailValueKey = new ConceptDetailValueKey();
-                conceptDetailValueKey.setConceptId(conceptDetailValuesDTO.getConceptId());
-                conceptDetailValueKey.setConceptDetailId(conceptDetailValuesDTO.getConceptDetailId());
-                ConceptDetailValues conceptDetailValues = new ConceptDetailValues();
-                conceptDetailValues.setId(conceptDetailValueKey);
-                conceptDetailValues.setColumnValue(conceptDetailValuesDTO.getColumnValue());
-                conceptDetailValues.setColumnName(conceptDetailValuesDTO.getColumnName());
-                conceptDetailValuesDTO.setColumnValue(savedConceptDetailValues.getColumnValue());
-                conceptDetailsValuesRepository.save(conceptDetailValues);
-                return conceptDetailValuesDTO;
+            if (updatedConceptDetailValues != null ) {
+                updatedConceptDetailValues.setColumnValue(updateConceptDetailValuesDTO.getColumnValue());
+                conceptDetailsValuesRepository.save(updatedConceptDetailValues);
+                return updateConceptDetailValuesDTO;
             }
         }  catch(Exception ex) {
             throw new DataScreenProcessingException("Error when updating ConceptDetailValue ",ex.getCause());
@@ -121,31 +112,21 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
 
     @Override
     public boolean deleteConceptDetailValue(ConceptDetailValuesDTO deleteConcepttDetailValuesDTO) throws DataScreenProcessingException {
-        ConceptDetailValues savedConceptDetailValues = null;
+        ConceptDetailValues deletedConceptDetailValues = null;
         ConceptDetailValuesDTO conceptDetailValuesDTO = null;
         try {
             if (deleteConcepttDetailValuesDTO.getConceptDetailId() == 0) {
-                conceptDetailValuesDTO = conceptDetailsValuesRepository.findByScreenConceptAndGlPeriod(
-                        deleteConcepttDetailValuesDTO.getScreenId(),
+                deletedConceptDetailValues = conceptDetailsValuesRepository.findByScreenConceptAndGlPeriod(
                         deleteConcepttDetailValuesDTO.getConceptId(),
                         deleteConcepttDetailValuesDTO.getGlPeriod());
             } else {
-                conceptDetailValuesDTO = conceptDetailsValuesRepository.findByScreenConceptDetailAndGlPeriod(
-                        deleteConcepttDetailValuesDTO.getScreenId(),
+                deletedConceptDetailValues = conceptDetailsValuesRepository.findByScreenConceptDetailAndGlPeriod(
                         deleteConcepttDetailValuesDTO.getConceptId(),
                         deleteConcepttDetailValuesDTO.getConceptDetailId(),
                         deleteConcepttDetailValuesDTO.getGlPeriod());
             }
-            if (conceptDetailValuesDTO != null ) {
-                ConceptDetailValueKey conceptDetailValueKey = new ConceptDetailValueKey();
-                conceptDetailValueKey.setConceptId(conceptDetailValuesDTO.getConceptId());
-                conceptDetailValueKey.setConceptDetailId(conceptDetailValuesDTO.getConceptDetailId());
-                ConceptDetailValues conceptDetailValues = new ConceptDetailValues();
-                conceptDetailValues.setId(conceptDetailValueKey);
-                conceptDetailValues.setColumnValue(conceptDetailValuesDTO.getColumnValue());
-                conceptDetailValues.setColumnName(conceptDetailValuesDTO.getColumnName());
-                conceptDetailValuesDTO.setColumnValue(savedConceptDetailValues.getColumnValue());
-                conceptDetailsValuesRepository.save(conceptDetailValues);
+            if (deletedConceptDetailValues != null ) {
+                conceptDetailsValuesRepository.delete(deletedConceptDetailValues);
                 return true;
             }
         }
