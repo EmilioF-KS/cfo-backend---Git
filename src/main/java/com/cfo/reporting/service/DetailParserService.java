@@ -1,14 +1,18 @@
 package com.cfo.reporting.service;
 
+import com.cfo.reporting.dto.CodeValueRec;
+import com.cfo.reporting.dto.ColumnDetailRecord;
 import com.cfo.reporting.dto.ConceptDetailRecord;
 import com.cfo.reporting.dto.DetailFormulaResult;
-import com.cfo.reporting.importing.BulkRepositoryImpl;
+//import com.cfo.reporting.importing.BulkRepositoryImpl;
+import com.cfo.reporting.model.ConceptDetail;
+import com.cfo.reporting.model.DetailFormula;
 import com.cfo.reporting.repository.ConceptDetailRepository;
 import com.cfo.reporting.repository.ConceptRepository;
+import com.cfo.reporting.repository.DetailFormulaRepository;
 import com.cfo.reporting.repository.ScreenRepository;
-import com.cfo.reporting.utils.CommonsListCombiner;
 import com.cfo.reporting.utils.DynamicLookupProcessor;
-import com.cfo.reporting.utils.SubtractMonth;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,61 +22,58 @@ import java.util.stream.Collectors;
 @Service
 public class DetailParserService {
     @Autowired
-    private BulkRepositoryImpl bulkRepositoryImpl;
-    @Autowired
-    private ConceptRepository conceptRepository;
-    @Autowired
-    private ScreenRepository screenRepository;
-    @Autowired
     private ConceptDetailRepository conceptDetailRepository;
     @Autowired
-    private BulkRepositoryImpl bulkRepository;
+    private DetailFormulaRepository  detailFormulaRepository;
 
-
-
-    public List<ConceptDetailRecord> allDetailsCalculated(String screenName,String glPeriod,int concept_id) {
+    public List<ConceptDetailRecord> allDetailsCalculated(String screenName,String glPeriod,
+                                                          int concept_id,
+                                                          Map<String,Map<String,Object>> tables ) {
         List<ConceptDetailRecord> listDetails = new ArrayList<>();
-        String sqlGLDAYSCurrent = "Select for_branch as id,tot_current_balance as value from " +
-                "tbl_cfo_gldays where gl_period = '"+glPeriod+"'";
-        String sqlGLDAYSPrevious = "Select for_branch as id,tot_current_balance as value from " +
-                "tbl_cfo_gldays where gl_period = '"+ SubtractMonth.subtractOneMonth(glPeriod) +"'";
-        Map<String,Map<String,Object>> tables = new HashMap<>();
-        Map<String,Object> currentValues = bulkRepositoryImpl.valuesForQuery(sqlGLDAYSCurrent);
-        Map<String,Object> previousValues = bulkRepositoryImpl.valuesForQuery(sqlGLDAYSPrevious);
+        List<ConceptDetail> allConceptDetais =
+                conceptDetailRepository.allDetailsByConcept(concept_id);
+        List<ColumnDetailRecord> allColumnFormulaResult = new ArrayList<>();
         //
-        tables.put("gldays",currentValues);
-        tables.put("prevgldays",previousValues);
+        // Retrieve all formulas for each Details
         //
-        List<DetailFormulaResult> allDetailFormulaRes =
-                conceptDetailRepository.allDetailsByScreenAndConcept(screenName,concept_id);
-        if (allDetailFormulaRes == null || allDetailFormulaRes.size() == 0) {
-           return listDetails;
-        }
-        //
-        List<DynamicLookupProcessor.DynamicValue> allResultados  = allDetailFormulaRes
-                .stream()
-                .map(result-> {
-                    DynamicLookupProcessor.DynamicValue dynamicLookupProcessor = new DynamicLookupProcessor.DynamicValue(result.columnName(),
-                           result.detailValue());
-                   return dynamicLookupProcessor;
-                } )
-                .collect(Collectors.toList());
-
-        String formula = allDetailFormulaRes.get(0).formulaText();
+        List<DetailFormula> allFormulasByDetail=new ArrayList<>();;
+        for (ConceptDetail conceptDetail: allConceptDetais) {
+            //int concetDetailId =
+            allFormulasByDetail = detailFormulaRepository.allFormulaDetailsById(conceptDetail.getDetail_id().intValue());
+            //
+            if (allFormulasByDetail == null || allFormulasByDetail.size() == 0) {
+                ConceptDetailRecord conceptDetailRecord =
+                        new ConceptDetailRecord(conceptDetail.getDetailLabel(),
+                                allColumnFormulaResult,
+                                conceptDetail.getDetailOrder());
+                listDetails.add(conceptDetailRecord);
+                return listDetails;
+            }
+            //
+            int columnOrder = 1;
+            for (DetailFormula detailFormula : allFormulasByDetail) {
+                DynamicLookupProcessor.DynamicValue diynamicValue = new
+                        DynamicLookupProcessor.DynamicValue(detailFormula.getColumnName(),
+                        conceptDetail.getDetailValue());
+                String formula = detailFormula.getFormulaText();
                 //"VLOOKUP('#{for_branch}', gldays)  -  VLOOKUP('#{for_branch}', prevgldays)";
+                DynamicLookupProcessor processor = new DynamicLookupProcessor();
+                CodeValueRec processorResult =
+                        processor.procesar(diynamicValue, tables, formula);
+                ColumnDetailRecord columnDetail = new ColumnDetailRecord(
+                        detailFormula.getColumnFormulascol()
+                        ,processorResult.value(),columnOrder);
+                allColumnFormulaResult.add(columnDetail);
+                columnOrder++;
+            }
+            ConceptDetailRecord conceptDetailRecord =
+                    new ConceptDetailRecord(conceptDetail.getDetailLabel(),
+                            allColumnFormulaResult,conceptDetail.getDetailOrder());
+            listDetails.add(conceptDetailRecord);
+            allColumnFormulaResult.clear();
+        }
 
-        DynamicLookupProcessor processor = new DynamicLookupProcessor();
-        List<DynamicLookupProcessor.Resultado>
-                allProcessorResul = processor.procesar(allResultados,tables,formula);
-
-
-        List<ConceptDetailRecord> detailsList = CommonsListCombiner.combineLists(
-                allDetailFormulaRes,
-                allProcessorResul,
-                ConceptDetailRecord::fromDTOs
-        );
-
-       return detailsList;
+       return listDetails;
     }
 
 }

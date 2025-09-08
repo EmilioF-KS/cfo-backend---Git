@@ -91,7 +91,7 @@ public class DynamicKeyExpression {
         return ops;
     }
 
-    public List<CodeValueRec> evaluate(Map<String, Map<String, Object>> dataTables,
+    public CodeValueRec evaluate(Map<String, Map<String, Object>> dataTables,
                            Map<String, String> keyContext) {
         // Resolver claves dinámicas
         List<ResolvedLookup> resolvedLookups = resolveLookups(keyContext);
@@ -142,7 +142,7 @@ public class DynamicKeyExpression {
         return sb.toString();
     }
 
-    private List<CodeValueRec> evaluateResolvedFormula(String formula, Map<String, Map<String, Object>> dataTables) {
+    private CodeValueRec evaluateResolvedFormula(String formula, Map<String, Map<String, Object>> dataTables) {
         // Usar un evaluador simple para fórmulas estáticas
         StaticExpressionEvaluator evaluator = new StaticExpressionEvaluator(formula);
         return evaluator.evaluate(dataTables);

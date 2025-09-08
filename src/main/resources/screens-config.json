@@ -1,44 +1,70 @@
 {
   "pantallas": [
     {
-      "ScreenCode": "scr_worksheet",
+      "clavePantalla": "scr_worksheet",
       "descripcion": "Dashboard principal con múltiples datos",
       "consultas": [
         {
-          "name": "gldays",
+          "nombre": "gldays",
           "tabla": "tbl_cfo_gldays",
-          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period :glPeriod",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period = :glPeriod",
           "parametros": [
             {
-              "nombre": "gl_period",
+              "nombre": "glPeriod",
               "tipo": "String",
               "valorPorDefecto": "202503",
               "obligatorio": true
             }
           ],
           "tipoResultado": "LISTA_MAPAS",
-          "claveCache": "gldays",
-          "valorCache": "total",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
           "configCache": {
             "tiempoExpiracion": 15,
             "unidadTiempo": "MINUTES"
           }
         },
         {
-          "name": "prevgldays",
+          "nombre": "prevgldays",
           "tabla": "tbl_cfo_gldays",
-          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period :glPeriod",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period = :glPeriodPrev",
           "parametros": [
             {
-              "nombre": "gl_period",
+              "nombre": "glPeriodPrev",
+              "tipo": "String",
+              "valorPorDefecto": "202502",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
+    },
+    {
+      "clavePantalla": "scr_supp_a_deposits",
+      "descripcion": "Screen for deposits results",
+      "consultas": [
+        {
+          "nombre": "sav",
+          "tabla": "tbl_cfo_savlst",
+          "query": "select product_definiti as concept_id, sum(ec_equiv_int_ear)/1000 as demand from tbl_cfo_ddalst  where foreign_curr_cod = 'ECD'\nand (account_number >= 60000000 or account_number in (1012889,1012897)) and gl_period = :glPeriod group by product_definiti",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
               "tipo": "String",
               "valorPorDefecto": "202503",
               "obligatorio": true
             }
           ],
           "tipoResultado": "LISTA_MAPAS",
-          "claveCache": "gldays",
-          "valorCache": "total",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
           "configCache": {
             "tiempoExpiracion": 15,
             "unidadTiempo": "MINUTES"

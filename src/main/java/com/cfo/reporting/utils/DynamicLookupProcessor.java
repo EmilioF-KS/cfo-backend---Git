@@ -28,29 +28,24 @@ public class DynamicLookupProcessor {
         }
     }
 
-    public List<Resultado> procesar(List<DynamicValue> valoresDinamicos,
+    public CodeValueRec procesar(DynamicValue valorDinamico,
                                     Map<String, Map<String, Object>> tablas,
                                     String formulaPlantilla) {
 
-        return valoresDinamicos.stream()
-                .map(dv -> {
-                    // 1. Crear contexto para este elemento
-                    Map<String, String> contexto = crearContexto(dv);
+            // 1. Crear contexto para este elemento
+            Map<String, String> contexto = crearContexto(valorDinamico.getKey(),valorDinamico.getValue());
 
-                    // 2. Resolver fórmula
-                    String formulaResuelta = resolverFormula(formulaPlantilla, contexto);
+            // 2. Resolver fórmula
+            String formulaResuelta = resolverFormula(formulaPlantilla, contexto);
+            // 3. Evaluar expresión
+            CodeValueRec resultados = evaluarFormula(formulaResuelta, tablas);
 
-                    // 3. Evaluar expresión
-                    List<CodeValueRec> resultado = evaluarFormula(formulaResuelta, tablas);
-
-                    return new Resultado(resultado.get(0).code(), formulaResuelta, resultado.get(0).value(),resultado.get(1).value(),resultado.get(2).value());
-                })
-                .collect(Collectors.toList());
+            return resultados;
     }
 
-    private Map<String, String> crearContexto(DynamicValue dv) {
+    private Map<String, String> crearContexto(String key, String value) {
         // Puedes expandir esto para manejar múltiples valores por objeto
-        return Map.of(dv.getKey(), dv.getValue());
+        return Map.of(key, value);
     }
 
     private String resolverFormula(String formula, Map<String, String> contexto) {
@@ -64,7 +59,7 @@ public class DynamicLookupProcessor {
                 });
     }
 
-    private List<CodeValueRec> evaluarFormula(String formula, Map<String, Map<String, Object>> tablas) {
+    private CodeValueRec evaluarFormula(String formula, Map<String, Map<String, Object>> tablas) {
         // Usar tu implementación existente de evaluador estático
         StaticExpressionEvaluator evaluador = new StaticExpressionEvaluator(formula);
         return evaluador.evaluate(tablas);

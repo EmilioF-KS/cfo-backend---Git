@@ -2,23 +2,27 @@ package com.cfo.reporting.dto;
 
 import com.cfo.reporting.utils.DynamicLookupProcessor;
 
-public record ConceptDetailRecord(String codeValue, String detailLabel
-        , double totCurrentBalance, Double totPreviousBalance, Double variance) {
+import java.util.ArrayList;
+import java.util.List;
 
-    public static ConceptDetailRecord fromDTOs(DetailFormulaResult detailFormulaResult,
-                                               DynamicLookupProcessor.Resultado resultado) {
+public record ConceptDetailRecord(String detailLabel
+        , List<ColumnDetailRecord> allColumns, int detilOrder) {
+
+    public ConceptDetailRecord {
+        allColumns = new ArrayList<>(allColumns);
+    }
+
+    public static ConceptDetailRecord fromDTOs(String detailLabel,
+                                               List<ColumnDetailRecord> allColumns,
+                                               int detilOrder) {
         return new ConceptDetailRecord(
-                detailFormulaResult.detailValue(),
-                detailFormulaResult.detailLabel(),
-                resultado.getValLookupFirst(),
-                resultado.getValLookupSecond(),
-                resultado.getValor()
+                detailLabel,
+                allColumns,
+                detilOrder
+
         );
 
 
     }
-    @Override
-    public String toString() {
-        return String.format("%s %s, %f, %f, %f", this.codeValue, this.detailLabel,this.totCurrentBalance, this.totPreviousBalance,this.variance());
-    }
+
 }

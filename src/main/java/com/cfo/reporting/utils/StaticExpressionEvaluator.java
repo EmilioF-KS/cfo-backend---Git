@@ -46,32 +46,40 @@ public class StaticExpressionEvaluator {
         return ops;
     }
 
-    public List<CodeValueRec> evaluate(Map<String, Map<String, Object>> dataTables) {
+    public CodeValueRec evaluate(Map<String, Map<String, Object>> dataTables) {
         List<CodeValueRec> values = new ArrayList<>();
+        List<CodeValueRec> resultValues = new ArrayList<>();
+        CodeValueRec codeValueResult;
         String codeValue = "";
         // Evaluar todos los VLOOKUPs primero
         for (LookupOperation lookup : lookups) {
             values.add(resolveLookup(lookup, dataTables));
         }
         // Aplicar operaciones matemáticas
-        double result = values.get(0).value();
+        double result = 0;
         for (int i = 0; i < operations.size(); i++) {
             result = operations.get(i).apply(result, values.get(i + 1).value());
         }
-        CodeValueRec codeValueResult = new CodeValueRec(values.get(0).code(),result);
-        values.add(codeValueResult);
-        return values;
+        //
+        if (lookups.size() > 0 && values.size() > 0 && result == 0) {
+            codeValueResult = new CodeValueRec(lookups.get(0).key(), values.get(0).value());
+        } else {
+            codeValueResult = new CodeValueRec("No", 0d);
+        }
+        return codeValueResult;
     }
 
     private CodeValueRec resolveLookup(LookupOperation lookup, Map<String, Map<String, Object>> dataTables) {
         Map<String, Object> table = dataTables.get(lookup.tableName());
-        if (table == null) {
-            throw new IllegalArgumentException("Tabla no encontrada: " + lookup.tableName());
-        }
+
         String keyTolook = lookup.key().toString();
+        if (table == null) {
+            return new CodeValueRec(keyTolook.toString(),0d);
+            //throw new IllegalArgumentException("Tabla no encontrada: " + lookup.tableName());
+        }
         Double value = (Double)table.get(keyTolook);
         if (value == null) {
-            System.out.println("Clave '" + lookup.key() + "' no encontrada en tabla '" + lookup.tableName() + "'");
+            System.out.println("Key '" + lookup.key() + "' not found in table '" + lookup.tableName() + "'");
             value=0d;
         }
 

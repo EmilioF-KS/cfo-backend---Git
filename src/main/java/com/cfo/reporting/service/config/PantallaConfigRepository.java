@@ -3,14 +3,21 @@ package com.cfo.reporting.service.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ScreenConfigRepository {
-    private final Map<String, ScreenConfig> configuraciones = new HashMap<>();
+@Component
+public class PantallaConfigRepository {
+    private final Map<String, PantallaConfig> configuraciones = new HashMap<>();
+//
+//    @Value("${spring.screen.config.file}")
+//    private String fileConfiguration;
 
-    public ScreenConfigRepository() {
+    public PantallaConfigRepository() {
         cargarConfiguraciones();
     }
 
@@ -27,7 +34,7 @@ public class ScreenConfigRepository {
             JsonNode pantallasNode = rootNode.get("pantallas");
 
             for (JsonNode pantallaNode : pantallasNode) {
-                ScreenConfig config = objectMapper.treeToValue(pantallaNode, ScreenConfig.class);
+                PantallaConfig config = objectMapper.treeToValue(pantallaNode, PantallaConfig.class);
                 configuraciones.put(config.getClavePantalla(), config);
             }
 
@@ -37,15 +44,20 @@ public class ScreenConfigRepository {
         }
     }
 
-    public ScreenConfig obtenerConfiguracion(String clavePantalla) {
-        ScreenConfig config = configuraciones.get(clavePantalla);
+    public PantallaConfig obtenerConfiguracion(String clavePantalla) {
+        PantallaConfig config = configuraciones.get(clavePantalla);
         if (config == null) {
             throw new RuntimeException("Configuración no encontrada para la pantalla: " + clavePantalla);
         }
         return config;
     }
 
-    public Map<String, ScreenConfig> obtenerTodasConfiguraciones() {
+    public ConsultaConfig obtenerConsultaConfig(String clavePantalla, String nombreConsulta) {
+        PantallaConfig pantallaConfig = obtenerConfiguracion(clavePantalla);
+        return pantallaConfig.obtenerConsultaPorNombre(nombreConsulta);
+    }
+
+    public Map<String, PantallaConfig> obtenerTodasConfiguraciones() {
         return new HashMap<>(configuraciones);
     }
 }
