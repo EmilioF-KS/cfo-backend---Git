@@ -171,26 +171,32 @@ public class ConceptParserService {
 
 
     private Map<String,Map<String,Object>> getTablesData(String screenId, String glPeriod) {
-       Map<String, Object> parametros = new HashMap<>();
-       PantallaConfig pantallaConfig = pantallaConfigRepository.obtenerConfiguracion(screenId);
-       List<ConsultaConfig> listParameters = pantallaConfig.getConsultas();
-
-       switch (screenId) {
-           case "scr_worksheet" :
-               parametros.put(String.valueOf(
-                       listParameters.get(0).getParametros().get(0)),glPeriod);
-               parametros.put(String.valueOf(
-                       listParameters.get(1).getParametros().get(0)),
-                       SubtractMonth.subtractOneMonth(glPeriod));
-               break;
-           default:
-               for (ConsultaConfig consultaConfig: listParameters ) {
-                   String keyParameter = String.valueOf(consultaConfig.getParametros().get(0).getNombre());
-                   parametros.put(keyParameter,glPeriod);
-               }
-               break;
+        Map<String,Map<String,Object>> tableValues = new HashMap<>();
+        Map<String, Object> parametros = new HashMap<>();
+        PantallaConfig pantallaConfig = null;
+       try {
+           pantallaConfig = pantallaConfigRepository.obtenerConfiguracion(screenId);
+           List<ConsultaConfig> listParameters = pantallaConfig.getConsultas();
+           switch (screenId) {
+               case "scr_worksheet":
+                   parametros.put(String.valueOf(
+                           listParameters.get(0).getParametros().get(0)), glPeriod);
+                   parametros.put(String.valueOf(
+                                   listParameters.get(1).getParametros().get(0)),
+                           SubtractMonth.subtractOneMonth(glPeriod));
+                   break;
+               default:
+                   for (ConsultaConfig consultaConfig : listParameters) {
+                       String keyParameter = String.valueOf(consultaConfig.getParametros().get(0).getNombre());
+                       parametros.put(keyParameter, glPeriod);
+                   }
+                   break;
+           }
+           tableValues =  pantallaService.obtenerTodasConsultasPantalla(screenId,parametros);
+       } catch(Exception ex) {
+           System.out.println("Not tables configuration found");
        }
-       return pantallaService.obtenerTodasConsultasPantalla(screenId,parametros);
+       return tableValues;
     }
 
 

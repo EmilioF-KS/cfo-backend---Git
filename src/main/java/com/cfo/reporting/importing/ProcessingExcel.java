@@ -61,13 +61,14 @@ public class ProcessingExcel implements ProcessExcellStrategy{
                 stringBuilder.append(String.join(",", Collections.nCopies(headerRow.getLastCellNum(), "?")) + ")");
                 int lastRow = getLastRowWithData((XSSFSheet) sheet);
                 int currentRow = 1;
-                int totalColumns=headerRow.getLastCellNum()+1;
+                int totalColumns=headerRow.getLastCellNum();
                 while (lastRow >= 0) {
                     Row row = sheet.getRow(currentRow);
                     if (row == null) break;
-                    Object[] rowColumns = new Object[totalColumns];
+                    Object[] rowColumns = new Object[totalColumns+1];
                     for (int i = 0; i < totalColumns ; i++) {
                         Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                        System.out.println("Columna :"+i+cell.toString());
                         if (i==0){
                             rowColumns[0]=glPeriod;
                             columnas++;
