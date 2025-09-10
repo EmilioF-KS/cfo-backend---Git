@@ -10,7 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 public class Main {
+
     public static void main(String[] args) {
+        String query= "select * from tbl_cfo_savlst";
+        System.out.println("QUery modificado "+query.replaceAll("(?i)select\\s+\\*","select count(*) "));
+    }
+    public static void manolo(String[] args) {
         // Configurar DataSource y NamedParameterJdbcTemplate
         DataSource dataSource = crearDataSource();
         NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);

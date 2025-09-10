@@ -9,9 +9,16 @@ import com.cfo.reporting.model.Screen;
 import com.cfo.reporting.service.ConceptParserService;
 import com.cfo.reporting.service.DynamicScreensService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/dynamic")
@@ -39,10 +46,20 @@ public class DynamicScreenController {
         return new ApiResponse<>(dynamicScreensService.getAllConcepts(screenId));
     }
     @GetMapping("/screens/{screenId}/{glPeriod}")
-    public ApiResponse<List<?>> getScreen(
+    public ResponseEntity<Map<String,Object>> getScreen(
             @PathVariable("screenId") String screenId,
-            @PathVariable("glPeriod") String glPeriod) {
-        return new ApiResponse<>(conceptParserService.allConceptsScreen(screenId,glPeriod));
+            @PathVariable("glPeriod") String glPeriod,
+            @PageableDefault(page=0, size=10) Pageable pageable) {
+        Map<String,Object> response = new HashMap<>();
+        Map<String,Object> mapResults = conceptParserService.allConceptsScreen(
+                screenId,glPeriod,pageable);
+        Map<String,Object> pageData = (Map<String, Object>) mapResults.get("pageData");
+        List<?> listConcepts = (List<?>) mapResults.get("allConcepts");
+        response.put("screens",listConcepts);
+        response.put("currentPage",pageable.getPageNumber());
+        response.put("totalItems",pageData.get("totalItems"));
+        response.put("totalPages",pageData.get("totalPages"));
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/detailsvalues")
@@ -65,4 +82,5 @@ public class DynamicScreenController {
     ) throws DataScreenProcessingException {
         return new ApiResponse<>(dynamicScreensService.deleteConceptDetailValue(conceptDetailValue));
     }
+
 }

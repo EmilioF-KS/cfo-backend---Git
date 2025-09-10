@@ -1,14 +1,20 @@
 package com.cfo.reporting.service;
 
+import com.cfo.reporting.dto.ColumnDetailRecord;
 import com.cfo.reporting.dto.ConceptDetailRecord;
 import com.cfo.reporting.dto.ConceptResultDTO;
 import com.cfo.reporting.importing.BulkRepositoryImpl;
 import com.cfo.reporting.model.Concept;
+import com.cfo.reporting.model.ConceptDetailValueKey;
+import com.cfo.reporting.model.ConceptDetailValues;
+import com.cfo.reporting.repository.ConceptDetailsValuesRepository;
 import com.cfo.reporting.repository.ConceptRepository;
 import com.cfo.reporting.service.config.ConsultaConfig;
 import com.cfo.reporting.service.config.PantallaConfig;
 import com.cfo.reporting.service.config.PantallaConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.cfo.reporting.service.config.PantallaService;
 
@@ -16,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.cfo.reporting.config.ApplicationConstants;
 import com.cfo.reporting.utils.SubtractMonth;
 
@@ -38,22 +46,31 @@ public class ConceptParserService {
     @Autowired
     private BulkRepositoryImpl bulkRepository;
 
-    public List<?> allConceptsScreen(String screenId, String glPeriod) {
+    @Autowired
+    ConceptDetailsValuesRepository conceptDetailsValuesRepository;
+
+    public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page) {
         //
          // Validates if the concept has a Query to execute
-        List<?> allResultsConcepts = new ArrayList<>();
+        Map<String,Object> allResultsConcepts = new HashMap<>();
+        Map<String,Object> pageData = new HashMap<>();
         //
         try {
             if (hasSubconcepts(screenId)) {
-                allResultsConcepts = allConceptsWithSubconcepts(screenId,
-                        glPeriod,getTablesData(screenId,glPeriod));
+                allResultsConcepts.put("allConcepts",allConceptsWithSubconcepts(screenId,
+                        glPeriod,getTablesData(screenId,glPeriod)));
+                pageData.put("offsetPage",10 );
+                pageData.put("totalPages",0);
+                pageData.put("totalItems",0);
+                allResultsConcepts.put("pageData",pageData);
             } else {
-                allResultsConcepts = allConceptsWithoutSubconcepts(screenId, glPeriod);
+                allResultsConcepts = allConceptsWithoutSubconcepts(screenId, glPeriod,page);
             }
         }
         catch (Exception ex) {
             ex.printStackTrace();
         }
+
        return allResultsConcepts;
     }
 
@@ -68,39 +85,42 @@ public class ConceptParserService {
         conceptResultDTO.setDescripcion(concept.getConcept_name());
         conceptResultDTO.setFilter(concept.is_filter());
         conceptResultDTO.setDetalles(allDetailsByConcept);
-
-//        double totCurrentBalance = allDetailsByConcept
-//                .stream()
-//                .mapToDouble(ConceptDetailRecord::totCurrentBalance).sum();
-//        double totPreviousBalance = allDetailsByConcept
-//                .stream()
-//                .mapToDouble(ConceptDetailRecord::totPreviousBalance).sum();
-//        conceptResultDTO.setDetalles(allDetailsByConcept);
-//
-//        double totalVariance = allDetailsByConcept
-//                .stream()
-//                .mapToDouble(ConceptDetailRecord::variance).sum();
-//        conceptResultDTO.setTotBalanceCurrent(totCurrentBalance);
-//        conceptResultDTO.setTotBalancePrevious(totPreviousBalance);
-//        conceptResultDTO.setTotVariance(totalVariance);
+        List<ColumnDetailRecord> conceptColums = allDetailsByConcept
+                .stream().flatMap(conceptDetail->
+                        conceptDetail.allColumns().stream())
+                .collect(Collectors.groupingBy(
+                        ColumnDetailRecord::getColumnName,
+                        Collectors.summingDouble(ColumnDetailRecord::getColumnValue)))
+                .entrySet().stream()
+                .map(entry-> new ColumnDetailRecord(entry.getKey(),entry.getValue(),0))
+                .collect(Collectors.toList());
+        conceptResultDTO.setAllColumns(conceptColums);
 
         return conceptResultDTO;
     }
 
-    private List<?> allConceptsWithoutSubconcepts(String screenId, String glPeriod) {
+    private Map<String,Object> allConceptsWithoutSubconcepts(String screenId, String glPeriod, Pageable page) {
         List<Concept> allConcepts = new ArrayList<>();
         List<ConceptResultDTO> allResultsConcepts = new ArrayList<>();
+        Map<String,Object> mapConceptResults = new HashMap<>();
+        Map<String,Object> pageData = new HashMap<>();
         allConcepts = conceptRepository.allConceptsByScreenId(screenId);
         for(Concept concept : allConcepts)  {
             if (concept.getQuery_concepts() != null && concept.getQuery_concepts().toLowerCase().contains("select")) {
                 List<Map<String,Object>> listDetails = new ArrayList<>();
+                pageData = getPageableData(concept.getQuery_concepts().toLowerCase(),page);
                 listDetails = dynamicQueryService.executeDynamicQuery(
-                        concept.getQuery_concepts()+" where gl_period ='"+glPeriod+"'",concept.getConcept_label());
-                return listDetails;
+                        concept.getQuery_concepts()+" where gl_period ='"+glPeriod+"' LIMIT "+
+                                 page.getPageSize() +
+                                " OFFSET "+pageData.get("offsetPage"),concept.getConcept_label());
+                mapConceptResults.put("allConcepts",listDetails);
+                mapConceptResults.put("pageData",pageData);
+                return mapConceptResults;
             }
         }
-
-        return allConcepts;
+        mapConceptResults.put("allConcepts",allConcepts);
+        mapConceptResults.put("pageData",pageData);
+        return mapConceptResults;
     }
 
     private List<?> allConceptsWithSubconcepts(String screenId, String glPeriod,
@@ -125,15 +145,14 @@ public class ConceptParserService {
                 parentConceptDTO.setConceptId(concept.getConcept_id());
                 parentConceptDTO.setConceptOrder(concept.getConcept_order());
                 parentConceptDTO.setDescripcion(concept.getConcept_name());
-                parentConceptDTO.setTotBalanceCurrent(0);
-                parentConceptDTO.setTotVariance(0);
-                parentConceptDTO.setTotBalancePrevious(0);
                 parentConceptDTO.setFilter(false);
             }
             allResultsConcepts.add(parentConceptDTO);
             allResultsConcepts.addAll(resultsParentSubConcepts);
             System.out.println("Current REsults "+resultsParentSubConcepts.size());
         }
+        //persist values calculated
+       // saveConceptDetailValues(allResultsConcepts);
         return allResultsConcepts;
     }
 
@@ -145,20 +164,16 @@ public class ConceptParserService {
         conceptResultDTO.setConceptOrder(parentConcept.getConcept_order());
         conceptResultDTO.setDescripcion(parentConcept.getConcept_name());
         conceptResultDTO.setFilter(parentConcept.is_filter());
-
-        double totCurrentBalance = allConcepts
-                .stream()
-                .mapToDouble(ConceptResultDTO::getTotBalanceCurrent).sum();
-        double totPreviousBalance = allConcepts
-                .stream()
-                .mapToDouble(ConceptResultDTO::getTotBalancePrevious).sum();
-
-        double totalVariance = allConcepts
-                .stream()
-                .mapToDouble(ConceptResultDTO::getTotVariance).sum();
-        conceptResultDTO.setTotBalanceCurrent(totCurrentBalance);
-        conceptResultDTO.setTotBalancePrevious(totPreviousBalance);
-        conceptResultDTO.setTotVariance(totalVariance);
+        List<ColumnDetailRecord> conceptColums = allConcepts
+                .stream().flatMap(conceptDetail->
+                        conceptDetail.getAllColumns().stream())
+                .collect(Collectors.groupingBy(
+                        ColumnDetailRecord::getColumnName,
+                        Collectors.summingDouble(ColumnDetailRecord::getColumnValue)))
+                .entrySet().stream()
+                .map(entry-> new ColumnDetailRecord(entry.getKey(),entry.getValue(),0))
+                .collect(Collectors.toList());
+        conceptResultDTO.setAllColumns(conceptColums);
 
         return conceptResultDTO;
 
@@ -199,5 +214,39 @@ public class ConceptParserService {
        return tableValues;
     }
 
+
+    private Map<String,Object> getPageableData(String QuerytoExecute, Pageable pageable) {
+        long totRows = bulkRepository.recordsProcessedByTable(QuerytoExecute.replaceAll("(?i)select\\s+\\*","select count(*) "));
+        int currOffset =0;
+        int totPages = (int) Math.ceil((double) totRows/ pageable.getPageSize());
+        Map<String,Object> pageData = new HashMap<>();
+        if (pageable.getPageNumber() == 0) {
+            currOffset=pageable.getPageSize();
+        }
+        else {
+            currOffset = pageable.getPageNumber() * pageable.getPageSize();
+        }
+
+        pageData.put("offsetPage", currOffset );
+        pageData.put("totalPages",totPages);
+        pageData.put("totalItems",totRows);
+        return pageData;
+    }
+
+    private boolean saveConceptDetailValues(List<ConceptResultDTO> listValues) {
+//        try {
+//            listValues.forEach(conceptParent -> {
+//                 ConceptDetailValueKey conceptDetailValueKey = new ConceptDetailValueKey();
+//                conceptDetailValueKey.setConceptDetailId();
+//                 ConceptDetailValues conceptDetailValues = new ConceptDetailValues();
+//                 conceptDetailsValuesRepository.save()
+//            });
+//
+//        }
+//        catch (Exception ex) {
+//
+//        }
+        return true;
+    }
 
 }

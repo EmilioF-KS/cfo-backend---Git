@@ -6,7 +6,9 @@ import com.cfo.reporting.model.ConceptDetailValues;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface ConceptDetailsValuesRepository extends JpaRepository<ConceptDetailValues, ConceptDetailValueKey> {
     @Query(value="SELECT * FROM tbl_cfo_column_details_values ccv " +
             "where ccv.concept_id = :conceptId " +

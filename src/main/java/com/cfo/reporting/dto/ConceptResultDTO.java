@@ -16,11 +16,9 @@ import java.util.Map;
 public class ConceptResultDTO {
     private long conceptId;
     private String descripcion;
-    private double totBalancePrevious;
-    private double totBalanceCurrent;
-    private double totVariance;
     private int conceptOrder;
     private boolean isFilter;
+    List<ColumnDetailRecord> allColumns = new ArrayList<>();
     private List<ConceptDetailRecord> detalles = new ArrayList<>();
 
 
