@@ -11,6 +11,7 @@ import com.cfo.reporting.service.DynamicScreensService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -49,16 +50,29 @@ public class DynamicScreenController {
     public ResponseEntity<Map<String,Object>> getScreen(
             @PathVariable("screenId") String screenId,
             @PathVariable("glPeriod") String glPeriod,
+            @RequestParam(value = "page",required = false) String page,
             @PageableDefault(page=0, size=10) Pageable pageable) {
+
+        int pageNumber = pageable.getPageNumber();
+        try {
+            pageNumber = (Integer.parseInt(page)!=0) ? Integer.parseInt(page): pageable.getPageNumber();
+        }catch (NumberFormatException nfEx){
+            pageNumber++;
+        }
+
+
+
         Map<String,Object> response = new HashMap<>();
         Map<String,Object> mapResults = conceptParserService.allConceptsScreen(
-                screenId,glPeriod,pageable);
+                screenId,glPeriod,pageable,pageNumber-1);
         Map<String,Object> pageData = (Map<String, Object>) mapResults.get("pageData");
         List<?> listConcepts = (List<?>) mapResults.get("allConcepts");
         response.put("screens",listConcepts);
-        response.put("currentPage",pageable.getPageNumber());
+        response.put("pageNumber",pageNumber);
         response.put("totalItems",pageData.get("totalItems"));
         response.put("totalPages",pageData.get("totalPages"));
+        response.put("hasPreviousPage",pageData.get("hasPreviousPage"));
+        response.put("hasNextPage",pageData.get("hasNextPage"));
         return ResponseEntity.ok(response);
     }
 

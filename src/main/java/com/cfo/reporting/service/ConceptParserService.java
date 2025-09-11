@@ -18,10 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.cfo.reporting.service.config.PantallaService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.cfo.reporting.config.ApplicationConstants;
@@ -49,29 +46,50 @@ public class ConceptParserService {
     @Autowired
     ConceptDetailsValuesRepository conceptDetailsValuesRepository;
 
-    public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page) {
-        //
-         // Validates if the concept has a Query to execute
+    public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page,int pageNumber) {
         Map<String,Object> allResultsConcepts = new HashMap<>();
         Map<String,Object> pageData = new HashMap<>();
-        //
+
         try {
             if (hasSubconcepts(screenId)) {
-                allResultsConcepts.put("allConcepts",allConceptsWithSubconcepts(screenId,
-                        glPeriod,getTablesData(screenId,glPeriod)));
-                pageData.put("offsetPage",10 );
-                pageData.put("totalPages",0);
-                pageData.put("totalItems",0);
-                allResultsConcepts.put("pageData",pageData);
+                List<?> allRetrievedRecords = allConceptsWithSubconcepts(
+                        screenId, glPeriod, getTablesData(screenId, glPeriod)
+                );
+
+                long total = allRetrievedRecords.size();
+                int pageSize = page.getPageSize();
+                int offset = pageNumber * pageSize;
+                boolean hasNext = ((pageNumber + 1) * pageSize) < total;
+                int totalPages  = (int) Math.ceil(total / (double) pageSize);
+
+                pageData.put("totalPages", totalPages);
+                pageData.put("totalItems", total);
+                pageData.put("pageNumber", pageNumber);
+                pageData.put("hasPreviousPage", page.hasPrevious());
+                pageData.put("hasNextPage", hasNext);
+
+                int from = Math.min(offset, allRetrievedRecords.size());
+                int to = Math.min(from + pageSize, allRetrievedRecords.size());
+                List<?> slice = allRetrievedRecords.subList(from, to);
+
+                allResultsConcepts.put("allConcepts", slice);
+                allResultsConcepts.put("pageData", pageData);
             } else {
-                allResultsConcepts = allConceptsWithoutSubconcepts(screenId, glPeriod,page);
+                allResultsConcepts = allConceptsWithoutSubconcepts(screenId, glPeriod, page);
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
+            pageData.put("offsetPage", 0);
+            pageData.put("totalPages", 0);
+            pageData.put("totalItems", 0L);
+            pageData.put("pageNumber", page.getPageNumber());
+            pageData.put("hasPreviousPage", false);
+            pageData.put("hasNextPage", false);
+            allResultsConcepts.put("allConcepts", Collections.emptyList());
+            allResultsConcepts.put("pageData", pageData);
         }
 
-       return allResultsConcepts;
+        return allResultsConcepts;
     }
 
     private ConceptResultDTO conceptWithDetails(String screenId, String glPeriod,int conceptId,Map<String,Map<String,Object>> tablesData) {
@@ -124,13 +142,13 @@ public class ConceptParserService {
     }
 
     private List<?> allConceptsWithSubconcepts(String screenId, String glPeriod,
-                                               Map<String, Map<String, Object>> tablesData) throws Exception{
-        List<Concept> allConceptsReults = new ArrayList<>();
+                                               Map<String, Map<String, Object>> tablesData) throws Exception {
         List<Concept> allParentConcepts = conceptRepository.allParentConcepts(screenId);
         List<ConceptResultDTO> allResultsConcepts = new ArrayList<>();
-        List<ConceptResultDTO> resultsParentSubConcepts = new ArrayList<>();
-        ConceptResultDTO parentConceptDTO = new ConceptResultDTO();
-        for (Concept concept : allParentConcepts ) {
+
+        for (Concept concept : allParentConcepts) {
+            List<ConceptResultDTO> resultsParentSubConcepts = new ArrayList<>();
+
             List<Concept> allSubconcepts =
                     conceptRepository.allSubConceptsByConceptId(screenId,(int)concept.getConcept_id());
             for (Concept subconcept : allSubconcepts) {
@@ -138,23 +156,24 @@ public class ConceptParserService {
                         (screenId, glPeriod, (int) subconcept.getConcept_id(),tablesData));
             }
             // get total by Parent
-            if (resultsParentSubConcepts.size() > 0 ) {
-                parentConceptDTO = addingSubconcepts(concept,resultsParentSubConcepts);
-            }
-            else {
+            ConceptResultDTO parentConceptDTO;
+            if (!resultsParentSubConcepts.isEmpty()) {
+                parentConceptDTO = addingSubconcepts(concept, resultsParentSubConcepts);
+            } else {
+                parentConceptDTO = new ConceptResultDTO();
                 parentConceptDTO.setConceptId(concept.getConcept_id());
                 parentConceptDTO.setConceptOrder(concept.getConcept_order());
                 parentConceptDTO.setDescripcion(concept.getConcept_name());
                 parentConceptDTO.setFilter(false);
             }
+
             allResultsConcepts.add(parentConceptDTO);
             allResultsConcepts.addAll(resultsParentSubConcepts);
-            System.out.println("Current REsults "+resultsParentSubConcepts.size());
         }
-        //persist values calculated
-       // saveConceptDetailValues(allResultsConcepts);
+
         return allResultsConcepts;
     }
+
 
 
     private ConceptResultDTO addingSubconcepts(Concept parentConcept,List<ConceptResultDTO> allConcepts) {
@@ -181,7 +200,9 @@ public class ConceptParserService {
     private boolean hasSubconcepts(String screenId) {
         String queryForValidatingSubconcepts = ApplicationConstants.queryHasSubconcepts +
                 " and screen_id = '"+screenId+"'";
-        return this.bulkRepository.recordsProcessedByTable(queryForValidatingSubconcepts) > 0;
+        long subConceptsFound = this.bulkRepository.recordsProcessedByTable(queryForValidatingSubconcepts);
+        System.out.println("Total subConcepts: "+subConceptsFound);
+        return  subConceptsFound > 0;
     }
 
 
@@ -218,6 +239,7 @@ public class ConceptParserService {
     private Map<String,Object> getPageableData(String QuerytoExecute, Pageable pageable) {
         long totRows = bulkRepository.recordsProcessedByTable(QuerytoExecute.replaceAll("(?i)select\\s+\\*","select count(*) "));
         int currOffset =0;
+        boolean nextPage;
         int totPages = (int) Math.ceil((double) totRows/ pageable.getPageSize());
         Map<String,Object> pageData = new HashMap<>();
         if (pageable.getPageNumber() == 0) {
@@ -227,9 +249,15 @@ public class ConceptParserService {
             currOffset = pageable.getPageNumber() * pageable.getPageSize();
         }
 
-        pageData.put("offsetPage", currOffset );
+        //Checking if next page is inside the total amount of rows
+        nextPage = ((pageable.getPageNumber() + 1) * pageable.getPageSize()) < totRows;
+
+        pageData.put("offsetPage", currOffset);
         pageData.put("totalPages",totPages);
         pageData.put("totalItems",totRows);
+        pageData.put("pageNumber",pageable.getPageNumber());
+        pageData.put("hasPreviousPage",pageable.hasPrevious());
+        pageData.put("hasNextPage",nextPage);
         return pageData;
     }
 
