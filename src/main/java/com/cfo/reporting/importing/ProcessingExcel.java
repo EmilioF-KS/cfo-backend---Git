@@ -38,6 +38,7 @@ public class ProcessingExcel implements ProcessExcellStrategy{
     public int processExcel(File file,String glPeriod) throws Exception {
         List<Object[]> rowData = new ArrayList<>();
         String table_name = this.getTableName(file);
+        System.out.println("Inserting into table: "+table_name);
          if (table_name == null) {
              throw new Exception("Not valid file to import"+file.getName());
          }
@@ -138,9 +139,10 @@ public class ProcessingExcel implements ProcessExcellStrategy{
     private String getTableName(File file) {
         List<UpdateTables> updateTablesList = updatedTablesRepository.findAll();
         String fileName = file.getName();
+        System.out.println(fileName.toLowerCase());
         Optional<String> tableName = buscarEntidad(
                 updateTablesList,
-                e -> fileName.toLowerCase().contains(e.getTable_alias()) ,
+                e -> e.getTable_alias().contains(fileName.toLowerCase().split(".xls")[0]) ,
                 UpdateTables::getTable_name
         );
 

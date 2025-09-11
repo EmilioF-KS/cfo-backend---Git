@@ -49,7 +49,7 @@ public class FileStorageService {
                     ProcessingExcel processingExcel =
                             new ProcessingExcel(bulkRepository,updatedTablesRepository);
                     FileProcessingDTO fileProcessingDTO = FileProcessingDTO.builder()
-                            .fileName(file.getName())
+                            .fileName(file.getOriginalFilename())
                             .recordsProcessed(processingExcel.processExcel
                                     (convertMultiPartToFile(file), periodo))
                             .build();
