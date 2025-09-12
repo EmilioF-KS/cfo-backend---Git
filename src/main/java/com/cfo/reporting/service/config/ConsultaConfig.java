@@ -84,8 +84,17 @@ public class ConsultaConfig {
     public void validarParametros(Map<String, Object> parametrosUsuario) {
         if (this.parametros != null) {
             for (ParametroConfig paramConfig : this.parametros) {
+
+                boolean theKeyIsPresent = false;
+                for(String key:parametrosUsuario.keySet()){
+                    if (key.split("nombre='")[1].split("',")[0].equals(paramConfig.getNombre())){
+                        theKeyIsPresent = true;
+                        System.out.println("Found the key "+paramConfig.getNombre()+ " in "+key);
+                    }
+                }
+
                 if (paramConfig.isObligatorio() &&
-                        (parametrosUsuario == null || !parametrosUsuario.containsKey(paramConfig.getNombre()))) {
+                        (parametrosUsuario == null || !theKeyIsPresent)) {
                     throw new IllegalArgumentException("Parámetro obligatorio no proporcionado: " + paramConfig.getNombre());
                 }
             }
