@@ -51,6 +51,7 @@ public class ProcessingExcel implements ProcessExcellStrategy{
         try ( FileInputStream fis = new FileInputStream(file);
               Workbook workbook = new XSSFWorkbook(fis) ) {
                 stringBuilder.append("INSERT INTO "+table_name+" VALUES (?,");
+                //stringBuilder.append("INSERT IGNORE "+table_name+" VALUES (?,");
                 Sheet sheet = workbook.getSheetAt(0);
                 Iterator<Row> rowIterator = sheet.iterator();
                 // Procesar encabezados
@@ -63,13 +64,13 @@ public class ProcessingExcel implements ProcessExcellStrategy{
                 int lastRow = getLastRowWithData((XSSFSheet) sheet);
                 int currentRow = 1;
                 int totalColumns=headerRow.getLastCellNum();
-                while (lastRow >= 0) {
+                while (currentRow <= lastRow) {
                     Row row = sheet.getRow(currentRow);
                     if (row == null) break;
                     Object[] rowColumns = new Object[totalColumns+1];
                     for (int i = 0; i < totalColumns ; i++) {
                         Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-                        System.out.println("Columna :"+i+cell.toString());
+                        //System.out.println("Columna :"+i+cell.toString());
                         if (i==0){
                             rowColumns[0]=glPeriod;
                             columnas++;
@@ -108,15 +109,15 @@ public class ProcessingExcel implements ProcessExcellStrategy{
                     rowData.add(rowColumns);
                     columnas=0;
                     currentRow++;
-                    lastRow--;
                     if (++batchCount % 1000 == 0) {
-                        System.out.println("Guardando registros ");
+                        System.out.println("Guardando registros: "+batchCount);
                         bulkRepository.bulkInsert(stringBuilder.toString(),rowData);
                         rowData.clear();
                     }
                 } // while
 
                 if (rowData.size() > 0) {
+                    System.out.println("Guardando registros: "+rowData.size());
                     bulkRepository.bulkInsert(stringBuilder.toString(),rowData);
                 }
             }
@@ -169,13 +170,20 @@ public class ProcessingExcel implements ProcessExcellStrategy{
             }
             lastRow--;
         }
+        System.out.println("Last row is: "+lastRow);
         return lastRow;
     }
     private boolean isRowEmpty(XSSFRow row) {
         if (row == null) return true;
+        boolean firstCell = true;
         for (int c= row.getFirstCellNum(); c< row.getLastCellNum(); c++){
             Cell  cell= row.getCell(c);
-            if (cell != null && cell.getCellType() != CellType.BLANK) {
+            if (firstCell){ //Check if starts in
+                if (cell.getColumnIndex()!=0){
+                    return true;
+                }
+                firstCell = false;
+            }else if (cell != null && cell.getCellType() != CellType.BLANK) {
                 return false;
             }
         }
