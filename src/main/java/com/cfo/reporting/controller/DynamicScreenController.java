@@ -55,6 +55,8 @@ public class DynamicScreenController {
             @PageableDefault(page=0, size=10) Pageable pageable) {
 
         int pageNumber = pageable.getPageNumber();
+        int pageablePageSize = pageable.getPageSize();
+
         try {
             pageNumber = (Integer.parseInt(page)!=0) ? Integer.parseInt(page): pageable.getPageNumber();
         }catch (NumberFormatException nfEx){
@@ -63,9 +65,16 @@ public class DynamicScreenController {
 
 
 
+        try {
+            pageablePageSize = (Integer.parseInt(pageSize)!=0) ? Integer.parseInt(pageSize): pageable.getPageNumber();
+        }catch (NumberFormatException nfEx){
+        }
+
+        System.out.println("Set page: "+page+" with page size: "+pageablePageSize);
+
         Map<String,Object> response = new HashMap<>();
         Map<String,Object> mapResults = conceptParserService.allConceptsScreen(
-                screenId,glPeriod,pageable,pageNumber-1);
+                screenId,glPeriod,pageable,pageNumber-1,pageablePageSize);
         Map<String,Object> pageData = (Map<String, Object>) mapResults.get("pageData");
         List<?> listConcepts = (List<?>) mapResults.get("allConcepts");
         response.put("screens",listConcepts);

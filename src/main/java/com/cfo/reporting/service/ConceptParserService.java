@@ -46,7 +46,7 @@ public class ConceptParserService {
     @Autowired
     ConceptDetailsValuesRepository conceptDetailsValuesRepository;
 
-    public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page,int pageNumber) {
+    public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page,int pageNumber,int pageSize) {
         Map<String,Object> allResultsConcepts = new HashMap<>();
         Map<String,Object> pageData = new HashMap<>();
 
@@ -57,15 +57,15 @@ public class ConceptParserService {
                 );
 
                 long total = allRetrievedRecords.size();
-                int pageSize = page.getPageSize();
                 int offset = pageNumber * pageSize;
-                boolean hasNext = ((pageNumber + 1) * pageSize) < total;
+                boolean hasNext = ((pageNumber + 1) * pageSize) < total; //
+                boolean hasPrev = ((pageNumber)*pageSize > 0); // 30>0
                 int totalPages  = (int) Math.ceil(total / (double) pageSize);
 
                 pageData.put("totalPages", totalPages);
                 pageData.put("totalItems", total);
                 pageData.put("pageNumber", pageNumber);
-                pageData.put("hasPreviousPage", page.hasPrevious());
+                pageData.put("hasPreviousPage", hasPrev);
                 pageData.put("hasNextPage", hasNext);
 
                 int from = Math.min(offset, allRetrievedRecords.size());
@@ -170,6 +170,7 @@ public class ConceptParserService {
             allResultsConcepts.add(parentConceptDTO);
             allResultsConcepts.addAll(resultsParentSubConcepts);
         }
+
 
         return allResultsConcepts;
     }
