@@ -50,7 +50,8 @@ public class DynamicScreenController {
     public ResponseEntity<Map<String,Object>> getScreen(
             @PathVariable("screenId") String screenId,
             @PathVariable("glPeriod") String glPeriod,
-            @RequestParam(value = "page",required = false) String page,
+            @RequestParam(value = "pageNumber",required = false) String page,
+            @RequestParam(value = "pageSize",required = false) String pageSize,
             @PageableDefault(page=0, size=10) Pageable pageable) {
 
         int pageNumber = pageable.getPageNumber();
