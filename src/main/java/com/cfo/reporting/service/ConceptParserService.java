@@ -170,7 +170,8 @@ public class ConceptParserService {
             allResultsConcepts.add(parentConceptDTO);
             allResultsConcepts.addAll(resultsParentSubConcepts);
         }
-
+        //Persist all concepts and Details
+        saveConceptDetailValues(allResultsConcepts,glPeriod);
 
         return allResultsConcepts;
     }
@@ -217,9 +218,9 @@ public class ConceptParserService {
            switch (screenId) {
                case "scr_worksheet":
                    parametros.put(String.valueOf(
-                           listParameters.get(0).getParametros().get(0)), glPeriod);
+                           listParameters.get(0).getParametros().get(0).getNombre()), glPeriod);
                    parametros.put(String.valueOf(
-                                   listParameters.get(1).getParametros().get(0)),
+                                   listParameters.get(1).getParametros().get(0).getNombre()),
                            SubtractMonth.subtractOneMonth(glPeriod));
                    break;
                default:
@@ -262,19 +263,34 @@ public class ConceptParserService {
         return pageData;
     }
 
-    private boolean saveConceptDetailValues(List<ConceptResultDTO> listValues) {
-//        try {
-//            listValues.forEach(conceptParent -> {
-//                 ConceptDetailValueKey conceptDetailValueKey = new ConceptDetailValueKey();
-//                conceptDetailValueKey.setConceptDetailId();
-//                 ConceptDetailValues conceptDetailValues = new ConceptDetailValues();
-//                 conceptDetailsValuesRepository.save()
-//            });
-//
-//        }
-//        catch (Exception ex) {
-//
-//        }
+    private boolean saveConceptDetailValues(List<ConceptResultDTO> listValues,String glPeriod) {
+        try {
+            listValues.forEach(conceptParent -> {
+                ConceptDetailValueKey conceptDetailValueKey = new ConceptDetailValueKey();
+                conceptDetailValueKey.setConceptId(conceptParent.getConceptId());
+                conceptDetailValueKey.setConceptDetailId(0);
+                conceptDetailValueKey.setGlPeriod(glPeriod);
+                ConceptDetailValues conceptDetailValues = new ConceptDetailValues();
+                conceptDetailValues.setId(conceptDetailValueKey);
+                for (ColumnDetailRecord columnDetailRecord: conceptParent.getAllColumns()) {
+                    conceptDetailValues.setColumnValue(columnDetailRecord.getColumnValue());
+                    conceptDetailValues.setColumnName(columnDetailRecord.getColumnName());
+                    conceptDetailsValuesRepository.save(conceptDetailValues);
+                }
+                conceptParent.getDetalles().forEach( conceptDetail-> {
+                    for (ColumnDetailRecord columnDetailRecord: conceptParent.getAllColumns()) {
+                        conceptDetailValues.setColumnValue(columnDetailRecord.getColumnValue());
+                        conceptDetailValues.setColumnName(columnDetailRecord.getColumnName());
+                        conceptDetailsValuesRepository.save(conceptDetailValues);
+                    }
+                });
+
+            });
+
+        }
+        catch (Exception ex) {
+
+        }
         return true;
     }
 

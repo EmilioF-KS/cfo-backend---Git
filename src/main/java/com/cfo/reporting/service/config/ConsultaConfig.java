@@ -86,17 +86,29 @@ public class ConsultaConfig {
             for (ParametroConfig paramConfig : this.parametros) {
 
                 boolean theKeyIsPresent = false;
-                for(String key:parametrosUsuario.keySet()){
-                    if (key.split("nombre='")[1].split("',")[0].equals(paramConfig.getNombre())){
-                        theKeyIsPresent = true;
-                        System.out.println("Found the key "+paramConfig.getNombre()+ " in "+key);
+                try {
+                    //Manually Check for key
+                    for (String key : parametrosUsuario.keySet()) {
+
+                        if (key.split("nombre='")[1].split("',")[0].equals(paramConfig.getNombre())) {
+                            theKeyIsPresent = true;
+                            System.out.println("Found the key " + paramConfig.getNombre() + " in " + key);
+                        }
+
+
+                        if (paramConfig.isObligatorio() &&
+                                (parametrosUsuario == null || !theKeyIsPresent)) {
+                            throw new IllegalArgumentException("Parámetro obligatorio no proporcionado: " + paramConfig.getNombre());
+                        }
+                    }
+                }catch (IndexOutOfBoundsException ex){
+                    System.out.println("Structure is plain not embedded");
+                    if (paramConfig.isObligatorio() &&
+                            (parametrosUsuario == null || !parametrosUsuario.containsKey(paramConfig.getNombre()))) {
+                        throw new IllegalArgumentException("Parámetro obligatorio no proporcionado: " + paramConfig.getNombre());
                     }
                 }
 
-                if (paramConfig.isObligatorio() &&
-                        (parametrosUsuario == null || !theKeyIsPresent)) {
-                    throw new IllegalArgumentException("Parámetro obligatorio no proporcionado: " + paramConfig.getNombre());
-                }
             }
         }
     }
