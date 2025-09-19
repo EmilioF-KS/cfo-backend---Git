@@ -18,6 +18,8 @@ public class DetailFormulaKey {
     @Column(name="concept_detail_id")
     private long conceptDetailId;
 
+
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

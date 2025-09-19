@@ -58,7 +58,7 @@ public class StaticExpressionEvaluator {
         // Aplicar operaciones matemáticas
         double result = 0;
         for (int i = 0; i < operations.size(); i++) {
-            result = operations.get(i).apply(result, values.get(i + 1).value());
+            result = operations.get(i).apply(values.get(i).value(), values.get(i + 1).value());
         }
         //
         if (lookups.size() > 0 && values.size() > 0 && result == 0) {

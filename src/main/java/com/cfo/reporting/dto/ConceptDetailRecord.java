@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record ConceptDetailRecord(String detailLabel
-        , List<ColumnDetailRecord> allColumns, int detilOrder) {
+        , List<ColumnDetailRecord> allColumns,long detailId, int detilOrder) {
 
     public ConceptDetailRecord {
         allColumns = new ArrayList<>(allColumns);
@@ -14,10 +14,12 @@ public record ConceptDetailRecord(String detailLabel
 
     public static ConceptDetailRecord fromDTOs(String detailLabel,
                                                List<ColumnDetailRecord> allColumns,
+                                               long detailId,
                                                int detilOrder) {
         return new ConceptDetailRecord(
                 detailLabel,
                 allColumns,
+                detailId,
                 detilOrder
 
         );

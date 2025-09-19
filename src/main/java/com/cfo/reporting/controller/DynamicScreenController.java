@@ -90,7 +90,8 @@ public class DynamicScreenController {
     public ApiResponse<?> createConceptDetailValue (
             @RequestBody ConceptDetailValuesDTO conceptDetailValue
     ) throws DataScreenProcessingException {
-        return new ApiResponse<>(dynamicScreensService.saveConceptDetailValue(conceptDetailValue));
+        return null;
+                //new ApiResponse<>(dynamicScreensService.saveConceptDetailValue(conceptDetailValue));
     }
 
     @PutMapping("/detailsvalues")

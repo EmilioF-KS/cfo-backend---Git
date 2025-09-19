@@ -4,29 +4,32 @@ import com.cfo.reporting.dto.ColumnDetailRecord;
 import com.cfo.reporting.dto.ConceptDetailRecord;
 import com.cfo.reporting.dto.ConceptResultDTO;
 import com.cfo.reporting.importing.BulkRepositoryImpl;
-import com.cfo.reporting.model.Concept;
-import com.cfo.reporting.model.ConceptDetailValueKey;
-import com.cfo.reporting.model.ConceptDetailValues;
+import com.cfo.reporting.model.*;
 import com.cfo.reporting.repository.ConceptDetailsValuesRepository;
 import com.cfo.reporting.repository.ConceptRepository;
 import com.cfo.reporting.service.config.ConsultaConfig;
 import com.cfo.reporting.service.config.PantallaConfig;
 import com.cfo.reporting.service.config.PantallaConfigRepository;
+import com.cfo.reporting.utils.CSVParallelProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.cfo.reporting.service.config.PantallaService;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import com.cfo.reporting.config.ApplicationConstants;
 import com.cfo.reporting.utils.SubtractMonth;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 @Service
 public class ConceptParserService {
 
+    private static String PREPROCESS_SCREEN="scr_pr01import";
     @Autowired
     private ConceptRepository conceptRepository;
     @Autowired
@@ -46,7 +49,13 @@ public class ConceptParserService {
     @Autowired
     ConceptDetailsValuesRepository conceptDetailsValuesRepository;
 
-    public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page,int pageNumber,int pageSize) {
+    @Autowired
+    private BackgroundSaveService backgroundSaveService;
+
+    @Autowired
+    private CSVParallelProcessor cSVParallelProcessor;
+
+    public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page, int pageNumber, int pageSize) {
         Map<String,Object> allResultsConcepts = new HashMap<>();
         Map<String,Object> pageData = new HashMap<>();
 
@@ -126,6 +135,11 @@ public class ConceptParserService {
         for(Concept concept : allConcepts)  {
             if (concept.getQuery_concepts() != null && concept.getQuery_concepts().toLowerCase().contains("select")) {
                 List<Map<String,Object>> listDetails = new ArrayList<>();
+                 //
+                 // checks if screen requires load preprocess information
+                 //
+                checkRequireProcessing(screenId,glPeriod);
+                //
                 pageData = getPageableData(concept.getQuery_concepts().toLowerCase(),page);
                 listDetails = dynamicQueryService.executeDynamicQuery(
                         concept.getQuery_concepts()+" where gl_period ='"+glPeriod+"' LIMIT "+
@@ -265,33 +279,65 @@ public class ConceptParserService {
 
     private boolean saveConceptDetailValues(List<ConceptResultDTO> listValues,String glPeriod) {
         try {
-            listValues.forEach(conceptParent -> {
-                ConceptDetailValueKey conceptDetailValueKey = new ConceptDetailValueKey();
-                conceptDetailValueKey.setConceptId(conceptParent.getConceptId());
-                conceptDetailValueKey.setConceptDetailId(0);
-                conceptDetailValueKey.setGlPeriod(glPeriod);
-                ConceptDetailValues conceptDetailValues = new ConceptDetailValues();
-                conceptDetailValues.setId(conceptDetailValueKey);
-                for (ColumnDetailRecord columnDetailRecord: conceptParent.getAllColumns()) {
+            List<ConceptDetailValues> conceptsTosave = new ArrayList<>();
+            for (ConceptResultDTO conceptResultDTO: listValues){
+                for (ColumnDetailRecord columnDetailRecord: conceptResultDTO.getAllColumns()) {
+                    ConceptDetailValues conceptDetailValues = new ConceptDetailValues();
+                    ConceptDetailValuesKey conceptDetailValueKey = new ConceptDetailValuesKey();
+                    conceptDetailValueKey.setConceptId(conceptResultDTO.getConceptId());
+                    conceptDetailValueKey.setGlPeriod(glPeriod);
+                    conceptDetailValueKey.setConceptDetailId(0);
+                    conceptDetailValueKey.setColumnName(columnDetailRecord.getColumnName().replaceAll("[\\s/+%]","_"));
+                    conceptDetailValues.setId(conceptDetailValueKey);
                     conceptDetailValues.setColumnValue(columnDetailRecord.getColumnValue());
-                    conceptDetailValues.setColumnName(columnDetailRecord.getColumnName());
-                    conceptDetailsValuesRepository.save(conceptDetailValues);
+                    //conceptDetailsValuesRepository.save(conceptDetailValues);
+                    conceptsTosave.add(conceptDetailValues);
                 }
-                conceptParent.getDetalles().forEach( conceptDetail-> {
-                    for (ColumnDetailRecord columnDetailRecord: conceptParent.getAllColumns()) {
-                        conceptDetailValues.setColumnValue(columnDetailRecord.getColumnValue());
-                        conceptDetailValues.setColumnName(columnDetailRecord.getColumnName());
-                        conceptDetailsValuesRepository.save(conceptDetailValues);
+//                if (conceptResultDTO.getAllColumns().size() == 0 ) {
+//                    conceptsTosave.add(conceptDetailValues);
+//                }
+                for (ConceptDetailRecord conceptDetailRecord: conceptResultDTO.getDetalles()) {
+                    int innerDetailColumns= conceptDetailRecord.allColumns().size();
+                    for (ColumnDetailRecord columnDetailRecord: conceptDetailRecord.allColumns()) {
+                        ConceptDetailValues innerConceptDetailValues = new ConceptDetailValues();
+                        ConceptDetailValuesKey innerConceptDetailValueKey = new ConceptDetailValuesKey();
+                        innerConceptDetailValueKey.setConceptId(conceptResultDTO.getConceptId());
+                        innerConceptDetailValueKey.setGlPeriod(glPeriod);
+                        innerConceptDetailValueKey.setConceptDetailId(conceptDetailRecord.detailId());
+                        innerConceptDetailValueKey.setColumnName(columnDetailRecord.getColumnName().replaceAll("[\\s/+%]","_"));
+                        innerConceptDetailValues.setId(innerConceptDetailValueKey);
+                        innerConceptDetailValues.setColumnValue(columnDetailRecord.getColumnValue());
+                        conceptsTosave.add(innerConceptDetailValues);
                     }
-                });
+                    //conceptDetailsValuesRepository.save(conceptDetailValues);
+                    //conceptsTosave.add(conceptDetailValues);
+//                    if (innerDetailColumns == 0 ) {
+//                        conceptsTosave.add(innerConceptDetailValues);
+//                    }
+                }
 
-            });
+            }
+            //saving data in background Mode
+            backgroundSaveService.salvarConAsync(conceptsTosave,ConceptDetailValues.class);
 
         }
         catch (Exception ex) {
 
+            System.out.println("Exception when saving values :"+ex.getMessage());
         }
         return true;
     }
 
+    private void checkRequireProcessing(String screenId, String glPeriod)  {
+        try {
+            if (screenId.contains(PREPROCESS_SCREEN)) {
+                backgroundSaveService.salvarConAsync(
+                        cSVParallelProcessor.processToGenerateCSV(glPeriod),
+                        CsvExporting.class);
+            }
+        } catch(Exception ex) {
+            System.out.println("Error when prprocessing Screen ");
+        }
+
+    }
 }

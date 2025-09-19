@@ -3,18 +3,11 @@ package com.cfo.reporting;
 import com.cfo.reporting.drools.vlookup.*;
 import com.cfo.reporting.drools.vlookup.model.data.EvaluationContext;
 import com.cfo.reporting.service.DetailParserService;
-//import org.kie.api.KieBase;
-//import org.kie.api.KieServices;
-//import org.kie.api.builder.KieBuilder;
-//import org.kie.api.builder.KieFileSystem;
-//import org.kie.api.builder.Results;
-//import org.kie.api.runtime.KieContainer;
-//import org.kie.api.runtime.KieSession;
-//import org.kie.internal.io.ResourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 
 
 import java.util.HashMap;
@@ -22,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 @SpringBootApplication
+//@EnableTransactionManagement
+//@Import(DataSourceAutoConfiguration.class)
 public class CfoReportingApplication implements CommandLineRunner {
    @Autowired
    private DetailParserService detailParserService;
