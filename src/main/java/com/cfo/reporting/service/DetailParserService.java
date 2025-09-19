@@ -12,15 +12,15 @@ import com.cfo.reporting.repository.ConceptRepository;
 import com.cfo.reporting.repository.DetailFormulaRepository;
 import com.cfo.reporting.repository.ScreenRepository;
 import com.cfo.reporting.utils.DynamicLookupProcessor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 @Service
 public class DetailParserService {
+
     @Autowired
     private ConceptDetailRepository conceptDetailRepository;
     @Autowired
@@ -45,6 +45,7 @@ public class DetailParserService {
                 ConceptDetailRecord conceptDetailRecord =
                         new ConceptDetailRecord(conceptDetail.getDetailLabel(),
                                 allColumnFormulaResult,
+                                conceptDetail.getDetail_id(),
                                 conceptDetail.getDetailOrder());
                 listDetails.add(conceptDetailRecord);
                 return listDetails;
@@ -68,7 +69,8 @@ public class DetailParserService {
             }
             ConceptDetailRecord conceptDetailRecord =
                     new ConceptDetailRecord(conceptDetail.getDetailLabel(),
-                            allColumnFormulaResult,conceptDetail.getDetailOrder());
+                            allColumnFormulaResult,conceptDetail.getDetail_id(),
+                            conceptDetail.getDetailOrder());
             listDetails.add(conceptDetailRecord);
             allColumnFormulaResult.clear();
         }

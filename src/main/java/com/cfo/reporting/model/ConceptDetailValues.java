@@ -10,30 +10,28 @@ import org.hibernate.annotations.EmbeddedColumnNaming;
 
 
 @Entity
-@Table(name = "tbl_cfo_column_details_values")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name="tbl_cfo_column_details_values")
+//, uniqueConstraints = @UniqueConstraint(
+//        columnNames={"concept_detail_id","concept_id","gl_period"}))
 public class ConceptDetailValues {
-    //    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "column_value_id", insertable = true,updatable = true)
-    private Long columnValueId;
+
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @Column(name = "column_value_id", insertable = true,updatable = true)
+    //private Long columnValueId;
     @EmbeddedId
-    private ConceptDetailValueKey id;
-    @Column(name="column_name")
-    private String columnName;
+    ConceptDetailValuesKey Id;
     @Column(name="column_value")
     private double columnValue;
 
-    @Transient
-    private boolean persisted=false;
-
-    @PostPersist
-    private void onPersist() {
-        this.persisted = true;
-        System.out.println("Entity persisted with columnValueId :"+columnValueId);
-
+    @Override
+    public String toString() {
+        return "ConceptDetailValues{" +
+                "Id=" + Id +
+                ", columnValue=" + columnValue +
+                '}';
     }
-
-
 }

@@ -1,15 +1,14 @@
 package com.cfo.reporting.repository;
 
-import com.cfo.reporting.dto.ConceptDetailValuesDTO;
-import com.cfo.reporting.model.ConceptDetailValueKey;
 import com.cfo.reporting.model.ConceptDetailValues;
+import com.cfo.reporting.model.ConceptDetailValuesKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ConceptDetailsValuesRepository extends JpaRepository<ConceptDetailValues, ConceptDetailValueKey> {
+public interface ConceptDetailsValuesRepository extends JpaRepository<ConceptDetailValues, ConceptDetailValuesKey> {
     @Query(value="SELECT * FROM tbl_cfo_column_details_values ccv " +
             "where ccv.concept_id = :conceptId " +
             "and ccv.gl_period = :glPeriod  " , nativeQuery=true)

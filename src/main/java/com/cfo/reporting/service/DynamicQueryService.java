@@ -94,12 +94,12 @@ public class DynamicQueryService {
 
         String sql = "SELECT COLUMN_NAME, COLUMN_COMMENT " +
                 "FROM INFORMATION_SCHEMA.COLUMNS " +
-                "WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ? " +
+                "WHERE TABLE_NAME = ?  " +
                 "order by ordinal_position";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter(1, tableName);
-        query.setParameter(2, schema);
+        //query.setParameter(2, schema);
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
