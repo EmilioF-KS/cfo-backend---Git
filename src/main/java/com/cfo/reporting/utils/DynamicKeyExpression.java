@@ -144,7 +144,7 @@ public class DynamicKeyExpression {
 
     private CodeValueRec evaluateResolvedFormula(String formula, Map<String, Map<String, Object>> dataTables) {
         // Usar un evaluador simple para fórmulas estáticas
-        StaticExpressionEvaluator evaluator = new StaticExpressionEvaluator(formula);
+        StaticExpressionEvaluator evaluator = new StaticExpressionEvaluator(formula,dataTables);
         return evaluator.evaluate(dataTables);
     }
 

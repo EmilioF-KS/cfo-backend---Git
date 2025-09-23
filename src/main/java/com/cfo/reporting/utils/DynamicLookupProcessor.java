@@ -34,18 +34,28 @@ public class DynamicLookupProcessor {
 
             // 1. Crear contexto para este elemento
             Map<String, String> contexto = crearContexto(valorDinamico.getKey(),valorDinamico.getValue());
-
             // 2. Resolver fórmula
-            String formulaResuelta = resolverFormula(formulaPlantilla, contexto);
-            // 3. Evaluar expresión
-            CodeValueRec resultados = evaluarFormula(formulaResuelta, tablas);
+           String formulaResuelta = resolverFormula(formulaPlantilla, contexto);
+           CodeValueRec resultados = evaluarFormula(formulaResuelta, tablas);
 
             return resultados;
     }
 
     private Map<String, String> crearContexto(String key, String value) {
         // Puedes expandir esto para manejar múltiples valores por objeto
-        return Map.of(key, value);
+        Map<String,String> mapContextos = new HashMap<>();
+        if (!value.isEmpty()) {
+            String[] values = value.split(",");
+            if (values.length > 1) {
+                int index = 1;
+                for (String valueToReturn : values) {
+                    mapContextos.put(key +"_"+ index, valueToReturn);
+                    index++;
+                }
+                return mapContextos;
+            }
+        }
+        return Map.of(key,value);
     }
 
     private String resolverFormula(String formula, Map<String, String> contexto) {
@@ -61,9 +71,12 @@ public class DynamicLookupProcessor {
 
     private CodeValueRec evaluarFormula(String formula, Map<String, Map<String, Object>> tablas) {
         // Usar tu implementación existente de evaluador estático
-        StaticExpressionEvaluator evaluador = new StaticExpressionEvaluator(formula);
-        return evaluador.evaluate(tablas);
+        StaticExpressionEvaluator evaluador = new StaticExpressionEvaluator(formula,tablas);
+        CodeValueRec codeValueRec = evaluador.parseFormula(formula);
+
+        return codeValueRec;
     }
+
 
     // Clase para almacenar resultados
     @Data
@@ -94,6 +107,5 @@ public class DynamicLookupProcessor {
             " Resultado operacin="+ valor;
         }
     }
-
 
 }

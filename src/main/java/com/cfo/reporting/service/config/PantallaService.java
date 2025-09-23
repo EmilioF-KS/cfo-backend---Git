@@ -247,7 +247,7 @@ public class PantallaService {
 
             // Procesar cada fila
             while (rowSet.next()) {
-                resultado.put(String.valueOf(rowSet.getObject(1)),
+                resultado.put(String.valueOf(rowSet.getObject(1)).replaceAll("\\.\\d+",""),
                 rowSet.getObject(2));
             }
         } catch (Exception e) {

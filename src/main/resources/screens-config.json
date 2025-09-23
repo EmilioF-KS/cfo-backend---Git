@@ -51,7 +51,7 @@
       "descripcion": "Screen for deposits results",
       "consultas": [
         {
-          "nombre": "dda",
+          "nombre": "ddaecd",
           "tabla": "tbl_cfo_ddalst",
           "query": "select new_bs1_code as concept_id, round(sum(ec_equiv_int_ear)/1000) as demand from tbl_cfo_ddalst  where foreign_curr_cod = 'ECD' and (account_number >= 60000000 or account_number in (1012889,1012897)) and gl_period = :glPeriod group by new_bs1_code",
           "parametros": [
@@ -71,7 +71,28 @@
           }
         },
         {
-          "nombre": "cds",
+          "nombre": "ddausd",
+          "tabla": "tbl_cfo_ddalst",
+          "query": "select new_bs1_code as concept_id, round(sum(ec_equiv_int_ear)/1000) as demand from tbl_cfo_ddalst  where foreign_curr_cod = 'USD' and (account_number >= 60000000 or account_number in (1012889,1012897)) and gl_period = :glPeriod group by new_bs1_code",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+        ,
+        {
+          "nombre": "cdsecd",
           "tabla": "tbl_cfo_cdslst",
           "query": "select new_bs1_code as concept_id, round(sum(c2_c7)/1000) as fixedtime from tbl_cfo_cdslst  where foreign_curr_cod = 'ECD' and gl_period = :glPeriod group by new_bs1_code",
           "parametros": [
@@ -91,7 +112,28 @@
           }
         },
         {
-          "nombre": "sav",
+          "nombre": "cdsusd",
+          "tabla": "tbl_cfo_cdslst",
+          "query": "select new_bs1_code as concept_id, round(sum(c2_c7)/1000) as fixedtime from tbl_cfo_cdslst  where foreign_curr_cod = 'ECD' and gl_period = :glPeriod group by new_bs1_code",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+        ,
+        {
+          "nombre": "savecd",
           "tabla": "tbl_cfo_savlst",
           "query": "select new_bs1_code as concept_id, round(sum(ec_equiv_int_ear)/1000) as savings from tbl_cfo_savlst  where foreign_curr_cod = 'ECD' and gl_period = :glPeriod group by new_bs1_code",
           "parametros": [
@@ -109,8 +151,73 @@
             "tiempoExpiracion": 15,
             "unidadTiempo": "MINUTES"
           }
+        },
+        {
+          "nombre": "savusd",
+          "tabla": "tbl_cfo_savlst",
+          "query": "select new_bs1_code as concept_id, round(sum(ec_equiv_int_ear)/1000) as savings from tbl_cfo_savlst  where foreign_curr_cod = 'USD' and gl_period = :glPeriod group by new_bs1_code",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
         }
-
+      ]
+    },
+    {
+      "clavePantalla": "scr_supp_c_due_to_and_due_from",
+      "descripcion": "Screen for supp c and due form",
+      "consultas": [
+        {
+          "nombre": "gldays",
+          "tabla": "tbl_cfo_gldays",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        },
+        {
+          "nombre": "fixedbks",
+          "tabla": "tbl_cfo_usd_ecd_fixeddepbks",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_usd_ecd_fixeddepbks WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
       ]
     }
   ]

@@ -15,6 +15,7 @@ import com.cfo.reporting.utils.DynamicLookupProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.*;
 import java.util.*;
 
 
@@ -52,10 +53,21 @@ public class DetailParserService {
             }
             //
             int columnOrder = 1;
+            String detailValue="";
             for (DetailFormula detailFormula : allFormulasByDetail) {
+                if (conceptDetail.getDetailValue() == null || conceptDetail.getDetailValue().isEmpty() ) {
+                    detailValue = detailFormula.getColumnDetailValue();
+                } else {
+                    detailValue = conceptDetail.getDetailValue();
+                }
+                if (detailValue== null) {
+                    detailValue="";
+                }
+
+
                 DynamicLookupProcessor.DynamicValue diynamicValue = new
                         DynamicLookupProcessor.DynamicValue(detailFormula.getColumnName(),
-                        conceptDetail.getDetailValue());
+                        detailValue);
                 String formula = detailFormula.getFormulaText();
                 //"VLOOKUP('#{for_branch}', gldays)  -  VLOOKUP('#{for_branch}', prevgldays)";
                 DynamicLookupProcessor processor = new DynamicLookupProcessor();

@@ -15,5 +15,8 @@ public class DetailFormula {
     private String formulaText;
     @Column(name="column_formulascol")
     private String columnFormulascol;
+    @Column(name="column_detail_value")
+    private String columnDetailValue;
+
 
 }
