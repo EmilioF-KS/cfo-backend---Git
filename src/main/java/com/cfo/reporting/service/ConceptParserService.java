@@ -59,6 +59,9 @@ public class ConceptParserService {
     @Autowired
     ScreenRepository screenRepository;
 
+    @Autowired
+    DynamicScreensService dynamicScreensService;
+
     public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page, int pageNumber, int pageSize) {
         Map<String,Object> allResultsConcepts = new HashMap<>();
         Map<String,Object> pageData = new HashMap<>();
@@ -111,6 +114,8 @@ public class ConceptParserService {
         List<ConceptDetailRecord> allDetailsByConcept =
                 detailParserService.allDetailsCalculated(screenId,glPeriod,conceptId,tablesData);
        Concept concept= conceptRepository.allConceptsByScreenIdConceptId(screenId,conceptId);
+       //
+         // retrieving
         //
         ConceptResultDTO conceptResultDTO  = new ConceptResultDTO();
         conceptResultDTO.setConceptId(concept.getConcept_id());
@@ -144,7 +149,6 @@ public class ConceptParserService {
                  //
                  // checks if screen requires load preprocess information
                  //
-                //checkRequireProcessing(screenId,glPeriod);
                 //pageData = getPageableData(concept.getQuery_concepts().toLowerCase(),page);
                 pageData = getPageableData(concept.getQuery_concepts().toLowerCase(),page,pageNumber,pageSize);
                 listDetails = dynamicQueryService.executeDynamicQuery(
@@ -317,11 +321,6 @@ public class ConceptParserService {
                         innerConceptDetailValues.setColumnValue(columnDetailRecord.getColumnValue());
                         conceptsTosave.add(innerConceptDetailValues);
                     }
-                    //conceptDetailsValuesRepository.save(conceptDetailValues);
-                    //conceptsTosave.add(conceptDetailValues);
-//                    if (innerDetailColumns == 0 ) {
-//                        conceptsTosave.add(innerConceptDetailValues);
-//                    }
                 }
 
             }
@@ -348,4 +347,6 @@ public class ConceptParserService {
         }
 
     }
+
+
 }

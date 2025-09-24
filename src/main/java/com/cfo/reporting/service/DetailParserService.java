@@ -6,11 +6,9 @@ import com.cfo.reporting.dto.ConceptDetailRecord;
 import com.cfo.reporting.dto.DetailFormulaResult;
 //import com.cfo.reporting.importing.BulkRepositoryImpl;
 import com.cfo.reporting.model.ConceptDetail;
+import com.cfo.reporting.model.ConceptDetailValues;
 import com.cfo.reporting.model.DetailFormula;
-import com.cfo.reporting.repository.ConceptDetailRepository;
-import com.cfo.reporting.repository.ConceptRepository;
-import com.cfo.reporting.repository.DetailFormulaRepository;
-import com.cfo.reporting.repository.ScreenRepository;
+import com.cfo.reporting.repository.*;
 import com.cfo.reporting.utils.DynamicLookupProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +24,8 @@ public class DetailParserService {
     private ConceptDetailRepository conceptDetailRepository;
     @Autowired
     private DetailFormulaRepository  detailFormulaRepository;
+    @Autowired
+    ConceptDetailsValuesRepository conceptDetailsValuesRepository;
 
     public List<ConceptDetailRecord> allDetailsCalculated(String screenName,String glPeriod,
                                                           int concept_id,
@@ -63,8 +63,7 @@ public class DetailParserService {
                 if (detailValue== null) {
                     detailValue="";
                 }
-
-
+                //
                 DynamicLookupProcessor.DynamicValue diynamicValue = new
                         DynamicLookupProcessor.DynamicValue(detailFormula.getColumnName(),
                         detailValue);
@@ -76,6 +75,11 @@ public class DetailParserService {
                 ColumnDetailRecord columnDetail = new ColumnDetailRecord(
                         detailFormula.getColumnFormulascol()
                         ,processorResult.value(),columnOrder);
+                //
+                 // Checks if the column has value in the tbl_cfo_column_details_values
+                 //
+                getColumnDetailValue(conceptDetail.getDetail_id(),concept_id,columnDetail,glPeriod);
+                 //
                 allColumnFormulaResult.add(columnDetail);
                 columnOrder++;
             }
@@ -90,4 +94,23 @@ public class DetailParserService {
        return listDetails;
     }
 
+    private void getColumnDetailValue(long detail_id,
+                                      int concept_id,
+                                      ColumnDetailRecord columnDetailRecord,
+                                      String glPeriod) {
+
+            ConceptDetailValues conceptDetailValues = conceptDetailsValuesRepository
+                    .findByScreenConceptDetailAndGlPeriodAndColumn(concept_id,
+                            detail_id,
+                            glPeriod,
+                            columnDetailRecord.getColumnName());
+            if (conceptDetailValues!= null) {
+                conceptDetailValues.setColumnValue(columnDetailRecord.getColumnValue());
+                try {
+                    conceptDetailsValuesRepository.save(conceptDetailValues);
+                } catch(Exception ex) {
+                    System.out.println("Exception when updating ColumnDetailvalues "+ex.getMessage());
+                }
+            }
+    }
 }
