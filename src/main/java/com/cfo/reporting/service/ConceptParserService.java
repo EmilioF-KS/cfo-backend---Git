@@ -73,7 +73,7 @@ public class ConceptParserService {
 
                 long total = allRetrievedRecords.size();
                 int offset = pageNumber * pageSize;
-                boolean hasNext = ((pageNumber + 1) * pageSize) < total; //
+                boolean hasNext = ((pageNumber + 1) * pageSize) < total;
                 boolean hasPrev = ((pageNumber)*pageSize > 0); // 30>0
                 int totalPages  = (int) Math.ceil(total / (double) pageSize);
 
@@ -90,7 +90,7 @@ public class ConceptParserService {
                 allResultsConcepts.put("allConcepts", slice);
                 allResultsConcepts.put("pageData", pageData);
             } else {
-                allResultsConcepts = allConceptsWithoutSubconcepts(screenId, glPeriod, page);
+                allResultsConcepts = allConceptsWithoutSubconcepts(screenId, glPeriod, page,pageNumber,pageSize);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -132,7 +132,7 @@ public class ConceptParserService {
         return conceptResultDTO;
     }
 
-    private Map<String,Object> allConceptsWithoutSubconcepts(String screenId, String glPeriod, Pageable page) {
+    private Map<String,Object> allConceptsWithoutSubconcepts(String screenId, String glPeriod, Pageable page,int pageNumber, int pageSize) {
         List<Concept> allConcepts = new ArrayList<>();
         List<ConceptResultDTO> allResultsConcepts = new ArrayList<>();
         Map<String,Object> mapConceptResults = new HashMap<>();
@@ -144,12 +144,12 @@ public class ConceptParserService {
                  //
                  // checks if screen requires load preprocess information
                  //
-                checkRequireProcessing(screenId,glPeriod);
-                //
-                pageData = getPageableData(concept.getQuery_concepts().toLowerCase(),page);
+                //checkRequireProcessing(screenId,glPeriod);
+                //pageData = getPageableData(concept.getQuery_concepts().toLowerCase(),page);
+                pageData = getPageableData(concept.getQuery_concepts().toLowerCase(),page,pageNumber,pageSize);
                 listDetails = dynamicQueryService.executeDynamicQuery(
                         concept.getQuery_concepts()+" where gl_period ='"+glPeriod+"' LIMIT "+
-                                 page.getPageSize() +
+                                pageSize  +
                                 " OFFSET "+pageData.get("offsetPage"),concept.getConcept_label());
                 mapConceptResults.put("allConcepts",listDetails);
                 mapConceptResults.put("pageData",pageData);
@@ -260,28 +260,28 @@ public class ConceptParserService {
     }
 
 
-    private Map<String,Object> getPageableData(String QuerytoExecute, Pageable pageable) {
+    private Map<String,Object> getPageableData(String QuerytoExecute, Pageable pageable, int pageNumber, int pageSize) {
         long totRows = bulkRepository.recordsProcessedByTable(QuerytoExecute.replaceAll("(?i)select\\s+\\*","select count(*) "));
         int currOffset =0;
         boolean nextPage;
-        int totPages = (int) Math.ceil((double) totRows/ pageable.getPageSize());
+        int totPages = (int) Math.ceil((double) totRows/ pageSize);
         Map<String,Object> pageData = new HashMap<>();
-        if (pageable.getPageNumber() == 0) {
-            currOffset=pageable.getPageSize();
+        if (pageNumber == 0) {
+            currOffset=0;
         }
         else {
-            currOffset = pageable.getPageNumber() * pageable.getPageSize();
+            currOffset = (pageNumber) * pageSize;
         }
 
-        //Checking if next page is inside the total amount of rows
-        nextPage = ((pageable.getPageNumber() + 1) * pageable.getPageSize()) < totRows;
+        boolean hasNext = ((pageNumber-1) * pageSize) < totRows;
+        boolean hasPrev = ((pageNumber)*pageSize > 0); // 30>0
 
         pageData.put("offsetPage", currOffset);
         pageData.put("totalPages",totPages);
         pageData.put("totalItems",totRows);
-        pageData.put("pageNumber",pageable.getPageNumber());
-        pageData.put("hasPreviousPage",pageable.hasPrevious());
-        pageData.put("hasNextPage",nextPage);
+        pageData.put("pageNumber",pageNumber);
+        pageData.put("hasPreviousPage",hasPrev);
+        pageData.put("hasNextPage",hasNext);
         return pageData;
     }
 
