@@ -179,31 +179,6 @@ public class DynamicQueryService {
         return mappedResults;
     }
 
-    /**
-     * Mapea resultados usando comentarios como nombres de columna
-     */
-//    private List<Map<String, Object>> mapResultsWithComments(
-//            List<TreeMap<Integer,Map<String, Object>>> rawResults,
-//            List<String> columnComments) {
-//
-//        List<Map<String, Object>> finalResults = new ArrayList<>();
-//
-//        for (TreeMap<Integer,Map<String, Object>> rawRow : rawResults) {
-//            Map<String, Object> finalRow = new HashMap<>();
-//
-//            int index = 0;
-//            for (Map.Entry<String, Object> entry : rawRow.entrySet()) {
-//                String columnName = entry.getKey();
-//                String displayName = columnComments.get(index);
-//                finalRow.put(displayName, entry.getValue());
-//                index++;
-//            }
-//
-//            finalResults.add(finalRow);
-//        }
-//
-//        return finalResults;
-//    }
 
     /**
      * Método auxiliar para obtener nombres de columnas cuando se usa SELECT *

@@ -42,45 +42,44 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
         return headersRepository.allHeadersByScreenId(screendId);
     }
 
-//   << @Transactional
-//    public ConceptDetailValuesDTO saveConceptDetailValue(ConceptDetailValuesDTO saveConceptDetailValuesDTO) throws DataScreenProcessingException {
-//        ConceptDetailValues savedConceptDetailValues = null;
-//        ConceptD>>etailValuesDTO conceptDetailValuesDTO = null;
-//        try {
-//            ConceptDetailValues conceptDetailValues = new ConceptDetailValues();
-//            ConceptDetailValuesKey conceptDetailValuesKey = new ConceptDetailValuesKey();
-//            conceptDetailValuesKey.setConceptId(saveConceptDetailValuesDTO.getConceptId());
-//            conceptDetailValuesKey.setGlPeriod(saveConceptDetailValuesDTO.getGlPeriod());
-//            conceptDetailValuesKey.setConceptDetailId(saveConceptDetailValuesDTO.getConceptDetailId());
-//            conceptDetailValues.setId(conceptDetailValuesKey);
-//            conceptDetailValues.setColumnValue(saveConceptDetailValuesDTO.getColumnValue());
-//            conceptDetailValuesKey.setColumnName(saveConceptDetailValuesDTO.getColumnName());
-//            savedConceptDetailValues = conceptDetailsValuesRepository.saveAndFlush(conceptDetailValues);
-//
-//            if (savedConceptDetailValues != null ) {
-//                conceptDetailValuesDTO = new ConceptDetailValuesDTO();
-//                conceptDetailValuesDTO.setColumnValue(savedConceptDetailValues.getColumnValue());
-//                conceptDetailValuesDTO.setColumnName(savedConceptDetailValues);
-//                return conceptDetailValuesDTO;
-//            }
-//            if (conceptDetailValuesDTO != null ) {
-//                 conceptDetailValuesKey = new ConceptDetailValuesKey();
-//                conceptDetailValues = new ConceptDetailValues();
-//                conceptDetailValuesKey.setConceptId(conceptDetailValuesDTO.getConceptId());
-//                conceptDetailValuesKey.setConceptDetailId(conceptDetailValuesDTO.getConceptDetailId());
-//                conceptDetailValues.setColumnValue(conceptDetailValuesDTO.getColumnValue());
-//                conceptDetailValuesKey.setGlPeriod(saveConceptDetailValuesDTO.getGlPeriod());
-//                conceptDetailValues.setColumnName(conceptDetailValuesDTO.);
-//                conceptDetailValues.setId(conceptDetailValuesKey);
-//                conceptDetailValuesDTO.setColumnValue(savedConceptDetailValues.getColumnValue());
-//                conceptDetailsValuesRepository.save(conceptDetailValues);
-//                return conceptDetailValuesDTO;
-//            }
-//        }  catch(Exception ex) {
-//            throw new DataScreenProcessingException("Error when saving ConceptDetailValue ",ex.getCause());
-//        }
-//       return new ConceptDetailValuesDTO();
-//    }
+    @Transactional
+    public ConceptDetailValuesDTO saveConceptDetailValue(ConceptDetailValuesDTO saveConceptDetailValuesDTO) throws DataScreenProcessingException {
+        ConceptDetailValues savedConceptDetailValues = null;
+        ConceptDetailValuesDTO conceptDetailValuesDTO = null;
+        try {
+            ConceptDetailValues conceptDetailValues = new ConceptDetailValues();
+            ConceptDetailValuesKey conceptDetailValuesKey = new ConceptDetailValuesKey();
+            conceptDetailValuesKey.setConceptId(saveConceptDetailValuesDTO.getConceptId());
+            conceptDetailValuesKey.setGlPeriod(saveConceptDetailValuesDTO.getGlPeriod());
+            conceptDetailValuesKey.setConceptDetailId(saveConceptDetailValuesDTO.getConceptDetailId());
+            conceptDetailValues.setId(conceptDetailValuesKey);
+            conceptDetailValues.setColumnValue(saveConceptDetailValuesDTO.getColumnValue());
+            conceptDetailValuesKey.setColumnName(saveConceptDetailValuesDTO.getColumnName());
+            savedConceptDetailValues = conceptDetailsValuesRepository.saveAndFlush(conceptDetailValues);
+
+            if (savedConceptDetailValues != null ) {
+                conceptDetailValuesDTO = new ConceptDetailValuesDTO();
+                conceptDetailValuesDTO.setColumnValue(savedConceptDetailValues.getColumnValue());
+                conceptDetailValuesDTO.setColumnName(savedConceptDetailValues.getId().getColumnName());
+                return conceptDetailValuesDTO;
+            }
+            if (conceptDetailValuesDTO != null ) {
+                 conceptDetailValuesKey = new ConceptDetailValuesKey();
+                conceptDetailValues = new ConceptDetailValues();
+                conceptDetailValuesKey.setConceptId(conceptDetailValuesDTO.getConceptId());
+                conceptDetailValuesKey.setConceptDetailId(conceptDetailValuesDTO.getConceptDetailId());
+                conceptDetailValuesKey.setGlPeriod(saveConceptDetailValuesDTO.getGlPeriod());
+                conceptDetailValuesKey.setColumnName(saveConceptDetailValuesDTO.getColumnName());
+                conceptDetailValues.setId(conceptDetailValuesKey);
+                conceptDetailValuesDTO.setColumnValue(savedConceptDetailValues.getColumnValue());
+                conceptDetailsValuesRepository.save(conceptDetailValues);
+                return conceptDetailValuesDTO;
+            }
+        }  catch(Exception ex) {
+            throw new DataScreenProcessingException("Error when saving ConceptDetailValue ",ex.getCause());
+        }
+       return new ConceptDetailValuesDTO();
+    }
 
     @Override
     public ConceptDetailValuesDTO updateConceptDetailValue(ConceptDetailValuesDTO updateConceptDetailValuesDTO) throws DataScreenProcessingException {

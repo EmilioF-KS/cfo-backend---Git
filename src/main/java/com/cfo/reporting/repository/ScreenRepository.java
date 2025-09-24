@@ -12,6 +12,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ScreenRepository extends JpaRepository<Screen,Long> {
-//    @Query(value="Select * from Screen where screen_id = ?", nativeQuery=true)
-//    Screen findByScreenId(@Param("screenId") String screenId);
+    @Query(value="Select * from tbl_cfo_screens where screen_id = ?", nativeQuery=true)
+    Screen findByScreenId(@Param("screenId") String screenId);
 }

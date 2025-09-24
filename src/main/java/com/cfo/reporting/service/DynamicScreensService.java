@@ -14,7 +14,7 @@ public interface DynamicScreensService {
     public List<Concept> getAllConcepts(String screenId) ;
     public List<Header> getAllHeaders(String screendId) ;
 
-    //public ConceptDetailValuesDTO saveConceptDetailValue(ConceptDetailValuesDTO saveceptDetailValuesDTO) throws DataScreenProcessingException;
+    public ConceptDetailValuesDTO saveConceptDetailValue(ConceptDetailValuesDTO saveceptDetailValuesDTO) throws DataScreenProcessingException;
     public ConceptDetailValuesDTO updateConceptDetailValue(ConceptDetailValuesDTO saveceptDetailValuesDTO) throws DataScreenProcessingException;
     public boolean deleteConceptDetailValue(ConceptDetailValuesDTO saveceptDetailValuesDTO) throws DataScreenProcessingException;
 

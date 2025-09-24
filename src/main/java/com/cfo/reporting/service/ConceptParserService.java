@@ -7,6 +7,7 @@ import com.cfo.reporting.importing.BulkRepositoryImpl;
 import com.cfo.reporting.model.*;
 import com.cfo.reporting.repository.ConceptDetailsValuesRepository;
 import com.cfo.reporting.repository.ConceptRepository;
+import com.cfo.reporting.repository.ScreenRepository;
 import com.cfo.reporting.service.config.ConsultaConfig;
 import com.cfo.reporting.service.config.PantallaConfig;
 import com.cfo.reporting.service.config.PantallaConfigRepository;
@@ -55,14 +56,19 @@ public class ConceptParserService {
     @Autowired
     private CSVParallelProcessor cSVParallelProcessor;
 
+    @Autowired
+    ScreenRepository screenRepository;
+
     public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page, int pageNumber, int pageSize) {
         Map<String,Object> allResultsConcepts = new HashMap<>();
         Map<String,Object> pageData = new HashMap<>();
+        boolean screenToSave= screenRepository.findByScreenId(screenId).isScreen_save();
 
         try {
             if (hasSubconcepts(screenId)) {
                 List<?> allRetrievedRecords = allConceptsWithSubconcepts(
-                        screenId, glPeriod, getTablesData(screenId, glPeriod)
+                        screenId, glPeriod, getTablesData(screenId, glPeriod),
+                        screenToSave
                 );
 
                 long total = allRetrievedRecords.size();
@@ -156,7 +162,8 @@ public class ConceptParserService {
     }
 
     private List<?> allConceptsWithSubconcepts(String screenId, String glPeriod,
-                                               Map<String, Map<String, Object>> tablesData) throws Exception {
+                                               Map<String, Map<String, Object>> tablesData,
+                                               boolean screenToSave) throws Exception {
         List<Concept> allParentConcepts = conceptRepository.allParentConcepts(screenId);
         List<ConceptResultDTO> allResultsConcepts = new ArrayList<>();
 
@@ -185,8 +192,9 @@ public class ConceptParserService {
             allResultsConcepts.addAll(resultsParentSubConcepts);
         }
         //Persist all concepts and Details
-        saveConceptDetailValues(allResultsConcepts,glPeriod);
-
+        if (screenToSave) {
+            saveConceptDetailValues(allResultsConcepts, glPeriod);
+        }
         return allResultsConcepts;
     }
 

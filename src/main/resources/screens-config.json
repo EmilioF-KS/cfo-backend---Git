@@ -45,6 +45,31 @@
           }
         }
       ]
+    },{
+      "clavePantalla": "scr_pr01",
+      "descripcion": "Dashboard principal con múltiples datos",
+      "consultas": [
+        {
+          "nombre": "colvalues",
+          "tabla": "tbl_cfo_column_details_values",
+          "query": "SELECT concept_id,column_value FROM tbl_cfo_column_details_values where concept_detail_id = 0 and column_name='Current_Period' and gl_period=:glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
     },
     {
       "clavePantalla": "scr_supp_a_deposits",
@@ -202,6 +227,218 @@
           "nombre": "fixedbks",
           "tabla": "tbl_cfo_usd_ecd_fixeddepbks",
           "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_usd_ecd_fixeddepbks WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
+    }
+    ,
+    {
+      "clavePantalla": "scr_supp_c_due_to_and_due_from_other_eccu",
+      "descripcion": "Screen for supp c and due form",
+      "consultas": [
+        {
+          "nombre": "gldays",
+          "tabla": "tbl_cfo_gldays",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
+    },
+
+    {
+          "clavePantalla": "scr_supp_c_due_to_and_due_from_other_non_caricom",
+          "descripcion": "scr_supp_c_due_to_and_due_from_other_non_caricom ",
+          "consultas": [
+            {
+              "nombre": "gldays",
+              "tabla": "tbl_cfo_gldays",
+              "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period = :glPeriod",
+              "parametros": [
+                {
+                  "nombre": "glPeriod",
+                  "tipo": "String",
+                  "valorPorDefecto": "202503",
+                  "obligatorio": true
+                }
+              ],
+              "tipoResultado": "LISTA_MAPAS",
+              "claveCache": "for_branch",
+              "valorCache": "tot_current_balance",
+              "configCache": {
+                "tiempoExpiracion": 15,
+                "unidadTiempo": "MINUTES"
+              }
+            }
+          ]
+    },
+        {
+          "clavePantalla": "scr_supp_c_due_to_and_due_from_other_non_eccu",
+          "descripcion": "scr_supp_c_due_to_and_due_from_other_non_eccu ",
+          "consultas": [
+            {
+              "nombre": "gldays",
+              "tabla": "tbl_cfo_gldays",
+              "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period = :glPeriod",
+              "parametros": [
+                {
+                  "nombre": "glPeriod",
+                  "tipo": "String",
+                  "valorPorDefecto": "202503",
+                  "obligatorio": true
+                }
+              ],
+              "tipoResultado": "LISTA_MAPAS",
+              "claveCache": "for_branch",
+              "valorCache": "tot_current_balance",
+              "configCache": {
+                "tiempoExpiracion": 15,
+                "unidadTiempo": "MINUTES"
+              }
+            }
+          ]
+        }
+        ,
+        {
+          "clavePantalla": "scr_supp_g_loans",
+          "descripcion": "scr_supp_g_loans ",
+          "consultas": [
+            {
+              "nombre": "loans",
+              "tabla": "tbl_cfo_overdraft",
+              "query": "select new_bs1_code as concept_id, round(sum(e_c__equivalent)/1000) as savings from tbl_cfo_overdraft where foreign_curr_cod = 'ECD' and gl_period = :glPeriod group by new_bs1_code",
+              "parametros": [
+                {
+                  "nombre": "glPeriod",
+                  "tipo": "String",
+                  "valorPorDefecto": "202503",
+                  "obligatorio": true
+                }
+              ],
+              "tipoResultado": "LISTA_MAPAS",
+              "claveCache": "for_branch",
+              "valorCache": "tot_current_balance",
+              "configCache": {
+                "tiempoExpiracion": 15,
+                "unidadTiempo": "MINUTES"
+              }
+            }
+          ]
+        }
+      ,
+    {
+      "clavePantalla": "scr_supp_h2_investment_and_debenture",
+      "descripcion": "scr_supp_h2_investment_and_debenture ",
+      "consultas": [
+        {
+          "nombre": "gldays",
+          "tabla": "tbl_gldays",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
+    },
+    {
+      "clavePantalla": "scr_supp_j_payables_and_receivables",
+      "descripcion": "scr_supp_j_payables_and_receivables ",
+      "consultas": [
+        {
+          "nombre": "gldays",
+          "tabla": "tbl_gldays",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
+    },
+    {
+      "clavePantalla": "scr_supp_K1_due_to_banks",
+      "descripcion": "scr_supp_K1_due_to_banks ",
+      "consultas": [
+        {
+          "nombre": "fixedbks",
+          "tabla": "tbl_cfo_usd_ecd_fixeddepbks",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_usd_ecd_fixeddepbks WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
+    },
+    {
+      "clavePantalla": "scr_supp_K2_due_from_banks",
+      "descripcion": "scr_supp_K2_due_from_banks ",
+      "consultas": [
+        {
+          "nombre": "gldays",
+          "tabla": "tbl_gldays",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period = :glPeriod",
           "parametros": [
             {
               "nombre": "glPeriod",
