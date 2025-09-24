@@ -20,6 +20,6 @@ public class VersionController {
     
     @GetMapping("/version")
     public String getVersion() {
-        return "version 0.3";
+        return "version 0.4";
     }
 }
