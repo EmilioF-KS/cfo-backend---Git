@@ -24,6 +24,16 @@ public interface ConceptDetailsValuesRepository extends JpaRepository<ConceptDet
             @Param("conceptId") long conceptId,
             @Param("conceptDetailId") long concepDetailtId,
             @Param("glPeriod") String glPeriod);
+    @Query(value="SELECT * FROM tbl_cfo_column_details_values ccv " +
+            " where ccv.concept_id = :conceptId " +
+            " and ccv.gl_period = :glPeriod " +
+            " and ccv.concept_detail_id = :conceptDetailId  " +
+            " and ccv.column_name = :columnName", nativeQuery=true)
+    ConceptDetailValues findByScreenConceptDetailAndGlPeriodAndColumn(
+            @Param("conceptId") long conceptId,
+            @Param("conceptDetailId") long concepDetailtId,
+            @Param("glPeriod") String glPeriod,
+            @Param("columnName") String columnName);
 
 
 
