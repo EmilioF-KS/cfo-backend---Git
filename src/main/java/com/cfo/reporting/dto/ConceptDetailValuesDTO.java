@@ -7,25 +7,16 @@ import lombok.NoArgsConstructor;
 
 @Data
 public class ConceptDetailValuesDTO {
-    private long columnValueId;
     private long conceptId;
     private long conceptDetailId;
     private String columnName;
     private double columnValue;
     private String glPeriod;
-    private String screenId;
 
     public ConceptDetailValuesDTO() {
     }
 
-    public long getColumnValueId() {
-        return columnValueId;
-    }
 
-    public ConceptDetailValuesDTO setColumnValueId(long columnValueId) {
-        this.columnValueId = columnValueId;
-        return this;
-    }
 
     public long getConceptId() {
         return conceptId;
@@ -69,15 +60,6 @@ public class ConceptDetailValuesDTO {
 
     public ConceptDetailValuesDTO setGlPeriod(String glPeriod) {
         this.glPeriod = glPeriod;
-        return this;
-    }
-
-    public String getScreenId() {
-        return screenId;
-    }
-
-    public ConceptDetailValuesDTO setScreenId(String screenId) {
-        this.screenId = screenId;
         return this;
     }
 }

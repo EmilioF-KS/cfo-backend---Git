@@ -12,6 +12,7 @@ import com.cfo.reporting.service.config.ConsultaConfig;
 import com.cfo.reporting.service.config.PantallaConfig;
 import com.cfo.reporting.service.config.PantallaConfigRepository;
 import com.cfo.reporting.utils.CSVParallelProcessor;
+import com.cfo.reporting.utils.ProcessConceptFormulas;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,9 @@ public class ConceptParserService {
 
     @Autowired
     DynamicScreensService dynamicScreensService;
+
+    @Autowired
+    ProcessConceptFormulas processConceptFormulas;
 
     public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page, int pageNumber, int pageSize) {
         Map<String,Object> allResultsConcepts = new HashMap<>();
@@ -177,9 +181,14 @@ public class ConceptParserService {
             List<Concept> allSubconcepts =
                     conceptRepository.allSubConceptsByConceptId(screenId,(int)concept.getConcept_id());
             for (Concept subconcept : allSubconcepts) {
-                resultsParentSubConcepts.add(conceptWithDetails
-                        (screenId, glPeriod, (int) subconcept.getConcept_id(),tablesData));
+                ConceptResultDTO subConceptResultDTO = conceptWithDetails
+                        (screenId, glPeriod, (int) subconcept.getConcept_id(),tablesData);
+                subConceptResultDTO = processConceptFormulas.processConceptFormulas(subConceptResultDTO,
+                        glPeriod,tablesData);
+                resultsParentSubConcepts.add(subConceptResultDTO);
             }
+            //
+             //
             // get total by Parent
             ConceptResultDTO parentConceptDTO;
             if (!resultsParentSubConcepts.isEmpty()) {
@@ -191,7 +200,11 @@ public class ConceptParserService {
                 parentConceptDTO.setDescripcion(concept.getConcept_name());
                 parentConceptDTO.setFilter(false);
             }
-
+            //
+             // Calculate formulas by concept
+             //
+            parentConceptDTO = processConceptFormulas.processConceptFormulas(parentConceptDTO,
+                    glPeriod,tablesData);
             allResultsConcepts.add(parentConceptDTO);
             allResultsConcepts.addAll(resultsParentSubConcepts);
         }
