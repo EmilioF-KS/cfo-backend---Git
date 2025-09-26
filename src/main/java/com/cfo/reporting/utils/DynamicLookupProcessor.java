@@ -65,6 +65,7 @@ public class DynamicLookupProcessor {
         return patron.matcher(formula)
                 .replaceAll(match -> {
                     String clave = match.group(1);
+                    System.out.println("clave "+clave+" "+contexto.get(clave));
                     return contexto.getOrDefault(clave, "null");
                 });
     }

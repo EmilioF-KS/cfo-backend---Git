@@ -88,9 +88,18 @@ public class DynamicScreenController {
 
     @PostMapping("/detailsvalues")
     public ApiResponse<?> createConceptDetailValue (
-            @RequestBody ConceptDetailValuesDTO conceptDetailValue
+            @RequestBody ConceptDetailValuesDTO[] conceptDetailValues
     ) throws DataScreenProcessingException {
-        return new ApiResponse<>(dynamicScreensService.saveConceptDetailValue(conceptDetailValue));
+
+        try {
+            for (ConceptDetailValuesDTO conceptDetailValuesDTO : conceptDetailValues) {
+                dynamicScreensService.saveConceptDetailValue(conceptDetailValuesDTO);
+            }
+            return new ApiResponse<>("Values Updated ");
+        }
+        catch(Exception ex) {
+            return new ApiResponse<>("Error when Saving Column Values :"+ex.getMessage());
+        }
     }
 
 

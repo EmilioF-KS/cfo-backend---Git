@@ -69,6 +69,7 @@ public class ConceptParserService {
     public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page, int pageNumber, int pageSize) {
         Map<String,Object> allResultsConcepts = new HashMap<>();
         Map<String,Object> pageData = new HashMap<>();
+
         boolean screenToSave= screenRepository.findByScreenId(screenId).isScreen_save();
 
         try {
@@ -243,7 +244,7 @@ public class ConceptParserService {
                 " and screen_id = '"+screenId+"'";
         long subConceptsFound = this.bulkRepository.recordsProcessedByTable(queryForValidatingSubconcepts);
         System.out.println("Total subConcepts: "+subConceptsFound);
-        return  subConceptsFound > 0;
+        return  subConceptsFound == 0;
     }
 
 

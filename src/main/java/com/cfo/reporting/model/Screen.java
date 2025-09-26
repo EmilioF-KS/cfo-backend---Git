@@ -20,5 +20,7 @@ public class Screen {
     private int screen_order;
     @Column(name="screen_save")
     private boolean screen_save;
+    @Column(name="screen_formid")
+    private String screen_formid;
 
 }
