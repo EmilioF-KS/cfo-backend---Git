@@ -68,6 +68,26 @@
             "tiempoExpiracion": 15,
             "unidadTiempo": "MINUTES"
           }
+        },
+        {
+          "nombre": "gldays",
+          "tabla": "tbl_cfo_gldays",
+          "query": "Select for_branch as id,month_change as value from tbl_cfo_gldays WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
         }
       ]
     },
