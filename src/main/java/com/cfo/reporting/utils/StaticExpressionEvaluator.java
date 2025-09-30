@@ -24,8 +24,8 @@ public class StaticExpressionEvaluator {
         this.operations = parseOperations(formula);
         // Definir precedencia de operadores
         this.precedenciaOperadores = new HashMap<>();
-        precedenciaOperadores.put("+", 1);
         precedenciaOperadores.put("-", 1);
+        precedenciaOperadores.put("+", 1);
         precedenciaOperadores.put("*", 2);
         precedenciaOperadores.put("/", 2);
         precedenciaOperadores.put("^", 3);
@@ -170,7 +170,9 @@ public class StaticExpressionEvaluator {
         ADD("+", (a, b) -> a + b),
         SUBTRACT("-", (a, b) -> a - b),
         MULTIPLY("*", (a, b) -> a * b),
-        DIVIDE("/", (a, b) -> a / b);
+        DIVIDE("/", (a, b) -> a / b),
+        ABS("-", (a,b)-> Math.abs(b));
+
 
         private final String symbol;
         private final DoubleBinaryOperator operation;
@@ -356,22 +358,36 @@ public class StaticExpressionEvaluator {
                 // Añadir otras funciones aquí si las necesitas
             } else if (isOperator(token)) {
                 if (stack.size() < 2) {
-                    throw new RuntimeException("Operador " + token + " necesita dos operandos");
+                    if (stack.size() == 1 & token.equals("-")){
+                        stack.push(Math.abs(stack.pop()));
+                    }else{
+                        throw new RuntimeException("Operador " + token + " necesita dos operandos");
+                    }
+                }else {
+                    double b = stack.pop();
+                    double a = stack.pop();
+                    switch (token) {
+                        case "+":
+                            stack.push(a + b);
+                            break;
+                        case "-":
+                            stack.push(a - b);
+                            break;
+                        case "*":
+                            stack.push(a * b);
+                            break;
+                        case "/":
+                            if (b == 0) throw new RuntimeException("División por cero");
+                            stack.push(a / b);
+                            break;
+                        case "^":
+                            stack.push(Math.pow(a, b));
+                            break;
+                        default:
+                            throw new RuntimeException("Operador desconocido: " + token);
+                    }
                 }
-                double b = stack.pop();
-                double a = stack.pop();
-                switch (token) {
-                    case "+": stack.push(a + b); break;
-                    case "-": stack.push(a - b); break;
-                    case "*": stack.push(a * b); break;
-                    case "/":
-                        if (b == 0) throw new RuntimeException("División por cero");
-                        stack.push(a / b);
-                        break;
-                    case "^": stack.push(Math.pow(a, b)); break;
-                    default:
-                        throw new RuntimeException("Operador desconocido: " + token);
-                }
+
             } else {
                 throw new RuntimeException("Token desconocido: " + token);
             }
