@@ -502,6 +502,74 @@
           }
         }
       ]
+    },
+    {
+      "clavePantalla": "scr_supp_a1_deposits",
+      "descripcion": "scr_supp_a1_deposits ",
+      "consultas": [
+       {
+          "nombre": "ddausd",
+          "tabla": "tbl_cfo_ddalst",
+          "query": "select new_bs1_code as concept_id, round(sum(ec_equiv_int_ear)/1000) as demand from tbl_cfo_ddalst  where foreign_curr_cod = 'USD' and (account_number >= 60000000 or account_number in (1012889,1012897)) and gl_period = :glPeriod group by new_bs1_code",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+       ,
+        {
+          "nombre": "cdsusd",
+          "tabla": "tbl_cfo_cdslst",
+          "query": "select new_bs1_code as concept_id, round(sum(c2_c7)/1000) as fixedtime from tbl_cfo_cdslst  where foreign_curr_cod = 'ECD' and gl_period = :glPeriod group by new_bs1_code",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ,
+        {
+          "nombre": "savusd",
+          "tabla": "tbl_cfo_savlst",
+          "query": "select new_bs1_code as concept_id, round(sum(ec_equiv_int_ear)/1000) as savings from tbl_cfo_savlst  where foreign_curr_cod = 'USD' and gl_period = :glPeriod group by new_bs1_code",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
     }
   ]
 }

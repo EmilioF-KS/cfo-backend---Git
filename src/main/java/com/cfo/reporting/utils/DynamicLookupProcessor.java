@@ -44,7 +44,7 @@ public class DynamicLookupProcessor {
     private Map<String, String> crearContexto(String key, String value) {
         // Puedes expandir esto para manejar múltiples valores por objeto
         Map<String,String> mapContextos = new HashMap<>();
-        if (!value.isEmpty()) {
+        if (value!= null && !value.isEmpty()) {
             String[] values = value.split(",");
             if (values.length > 1) {
                 int index = 1;
@@ -54,6 +54,8 @@ public class DynamicLookupProcessor {
                 }
                 return mapContextos;
             }
+        } else {
+            value="";
         }
         return Map.of(key,value);
     }

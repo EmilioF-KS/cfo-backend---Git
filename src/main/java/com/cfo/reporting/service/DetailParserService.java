@@ -49,7 +49,7 @@ public class DetailParserService {
                                 conceptDetail.getDetail_id(),
                                 conceptDetail.getDetailOrder());
                 listDetails.add(conceptDetailRecord);
-                return listDetails;
+                continue;
             }
             //
             int columnOrder = 1;
