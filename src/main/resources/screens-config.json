@@ -476,6 +476,32 @@
           }
         }
       ]
+    },
+    {
+      "clavePantalla": "scr_accrued_interest",
+      "descripcion": "scr_accrued_interest ",
+      "consultas": [
+        {
+          "nombre": "gldays",
+          "tabla": "tbl_gldays",
+          "query": "Select for_branch as id,tot_current_balance as value from tbl_cfo_gldays WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
     }
   ]
 }
