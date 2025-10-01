@@ -99,18 +99,25 @@ public class DetailParserService {
                                       ColumnDetailRecord columnDetailRecord,
                                       String glPeriod) {
 
+        System.out.println("Seek : Concept "+concept_id+" Detail" +
+                detail_id+
+                glPeriod+"Column "+
+                columnDetailRecord.getColumnName().replaceAll("[^a-zA-Z0-9]", "_"));
             ConceptDetailValues conceptDetailValues = conceptDetailsValuesRepository
                     .findByScreenConceptDetailAndGlPeriodAndColumn(concept_id,
                             detail_id,
                             glPeriod,
-                            columnDetailRecord.getColumnName());
+                            columnDetailRecord.getColumnName().replaceAll("[^a-zA-Z0-9]", "_").toUpperCase());
             if (conceptDetailValues!= null) {
-                conceptDetailValues.setColumnValue(columnDetailRecord.getColumnValue());
-                try {
-                    conceptDetailsValuesRepository.save(conceptDetailValues);
-                } catch(Exception ex) {
-                    System.out.println("Exception when updating ColumnDetailvalues "+ex.getMessage());
-                }
+                columnDetailRecord.setColumnValue(conceptDetailValues.getColumnValue());
+//                try {
+//                    conceptDetailsValuesRepository.save(conceptDetailValues);
+//                } catch(Exception ex) {
+//                    System.out.println("Exception when updating ColumnDetailvalues "+ex.getMessage());
+//                }
             }
+//            else {
+//                columnDetailRecord.setColumnValue(conceptDetailValues.getColumnValue());
+//            }
     }
 }
