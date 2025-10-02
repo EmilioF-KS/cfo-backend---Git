@@ -51,7 +51,7 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
             ConceptDetailValuesKey conceptDetailValuesKey = new ConceptDetailValuesKey();
             conceptDetailValuesKey.setConceptId(saveConceptDetailValuesDTO.getConceptId());
             conceptDetailValuesKey.setGlPeriod(saveConceptDetailValuesDTO.getGlPeriod());
-            conceptDetailValuesKey.setConceptDetailId(saveConceptDetailValuesDTO.getConceptDetailId());
+            conceptDetailValuesKey.setConceptDetailId(saveConceptDetailValuesDTO.getDetailId());
             conceptDetailValues.setId(conceptDetailValuesKey);
             conceptDetailValues.setColumnValue(saveConceptDetailValuesDTO.getColumnValue());
             conceptDetailValuesKey.setColumnName(saveConceptDetailValuesDTO.getColumnName().replaceAll("[\\s/+%]","_"));
@@ -67,7 +67,7 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
                  conceptDetailValuesKey = new ConceptDetailValuesKey();
                 conceptDetailValues = new ConceptDetailValues();
                 conceptDetailValuesKey.setConceptId(conceptDetailValuesDTO.getConceptId());
-                conceptDetailValuesKey.setConceptDetailId(conceptDetailValuesDTO.getConceptDetailId());
+                conceptDetailValuesKey.setConceptDetailId(conceptDetailValuesDTO.getDetailId());
                 conceptDetailValuesKey.setGlPeriod(saveConceptDetailValuesDTO.getGlPeriod());
                 conceptDetailValuesKey.setColumnName(saveConceptDetailValuesDTO.getColumnName());
                 conceptDetailValues.setId(conceptDetailValuesKey);
@@ -76,7 +76,7 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
                 ConceptDetailValuesDTO conceptReturnDetailValuesDTO = new ConceptDetailValuesDTO();
                 conceptReturnDetailValuesDTO.setGlPeriod(saveConceptDetailValuesDTO.getGlPeriod());
                 conceptReturnDetailValuesDTO.setConceptId(conceptDetailValues1.getId().getConceptId());
-                conceptReturnDetailValuesDTO.setConceptDetailId(conceptDetailValues1.getId().getConceptDetailId());
+                conceptReturnDetailValuesDTO.setDetailId(conceptDetailValues1.getId().getConceptDetailId());
                 conceptReturnDetailValuesDTO.setColumnName(conceptDetailValues1.getId().getColumnName());
                 conceptReturnDetailValuesDTO.setColumnValue(conceptDetailValues1.getColumnValue());
                 return conceptReturnDetailValuesDTO;

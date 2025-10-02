@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class ConceptDetailValuesDTO {
     private long conceptId;
-    private long conceptDetailId;
+    private long detailId;
     private String columnName;
     private double columnValue;
     private String glPeriod;
@@ -27,12 +27,13 @@ public class ConceptDetailValuesDTO {
         return this;
     }
 
-    public long getConceptDetailId() {
-        return conceptDetailId;
+
+    public long getDetailId() {
+        return detailId;
     }
 
-    public ConceptDetailValuesDTO setConceptDetailId(long conceptDetailId) {
-        this.conceptDetailId = conceptDetailId;
+    public ConceptDetailValuesDTO setDetailId(long detailId) {
+        this.detailId = detailId;
         return this;
     }
 
