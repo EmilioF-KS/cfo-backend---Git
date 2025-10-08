@@ -22,4 +22,10 @@ public class VersionController {
     public String getVersion() {
         return "version 0.8";
     }
+
+    public static void main(String[] args) {
+        String fileName= "C:\\Users\\MIGUELANGELSANTOS\\Downloads\\DDALST - OD.XLSX";
+        String alias = "ddalst - od";
+        System.out.println(fileName.toLowerCase().split(".xlsx")[0].contains(alias));
+    }
 }

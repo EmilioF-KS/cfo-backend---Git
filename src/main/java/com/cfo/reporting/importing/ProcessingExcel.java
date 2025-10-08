@@ -143,7 +143,7 @@ public class ProcessingExcel implements ProcessExcellStrategy{
         System.out.println(fileName.toLowerCase());
         Optional<String> tableName = buscarEntidad(
                 updateTablesList,
-                e -> e.getTable_alias().contains(fileName.toLowerCase().split(".xls")[0]) ,
+                e -> fileName.toLowerCase().split(".xlsx")[0].contains(e.getTable_alias()) ,
                 UpdateTables::getTable_name
         );
 
