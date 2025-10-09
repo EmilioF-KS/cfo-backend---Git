@@ -155,7 +155,7 @@ public class ConceptParserService {
                  // checks if screen requires load preprocess information
                  //
                 //pageData = getPageableData(concept.getQuery_concepts().toLowerCase(),page);
-                pageData = getPageableData(concept.getQuery_concepts().toLowerCase(),page,pageNumber,pageSize);
+                pageData = getPageableData(concept.getQuery_concepts().toLowerCase(),page,pageNumber,pageSize,glPeriod);
                 listDetails = dynamicQueryService.executeDynamicQuery(
                         concept.getQuery_concepts()+" where gl_period ='"+glPeriod+"' LIMIT "+
                                 pageSize  +
@@ -186,6 +186,15 @@ public class ConceptParserService {
                         (screenId, glPeriod, (int) subconcept.getConcept_id(),tablesData);
                 subConceptResultDTO = processConceptFormulas.processConceptFormulas(subConceptResultDTO,
                         glPeriod,tablesData);
+                // Checks if the column has value in the tbl_cfo_column_details_values
+                //
+                for (ColumnDetailRecord columnDetail: subConceptResultDTO.getAllColumns() ) {
+                    if (columnDetail.getColumnValue () ==0) {
+                        getColumnDetailValue(0, (int) (subconcept.getConcept_id()),
+                                columnDetail, glPeriod);
+                    }
+                }
+                //
                 resultsParentSubConcepts.add(subConceptResultDTO);
             }
             //
@@ -206,6 +215,12 @@ public class ConceptParserService {
              //
             parentConceptDTO = processConceptFormulas.processConceptFormulas(parentConceptDTO,
                     glPeriod,tablesData);
+            for (ColumnDetailRecord columnDetail: parentConceptDTO.getAllColumns() ) {
+                if (columnDetail.getColumnValue () ==0) {
+                    getColumnDetailValue(0, (int) (parentConceptDTO.getConceptId()),
+                            columnDetail, glPeriod);
+                }
+            }
             allResultsConcepts.add(parentConceptDTO);
             allResultsConcepts.addAll(resultsParentSubConcepts);
         }
@@ -278,8 +293,8 @@ public class ConceptParserService {
     }
 
 
-    private Map<String,Object> getPageableData(String QuerytoExecute, Pageable pageable, int pageNumber, int pageSize) {
-        long totRows = bulkRepository.recordsProcessedByTable(QuerytoExecute.replaceAll("(?i)select\\s+\\*","select count(*) "));
+    private Map<String,Object> getPageableData(String QuerytoExecute, Pageable pageable, int pageNumber, int pageSize,String glPeriod) {
+        long totRows = bulkRepository.recordsProcessedByTable(QuerytoExecute.replaceAll("(?i)select\\s+\\*","select count(*) ")+" where gl_period = '"+glPeriod+"'");
         int currOffset =0;
         boolean nextPage;
         int totPages = (int) Math.ceil((double) totRows/ pageSize);
@@ -362,5 +377,19 @@ public class ConceptParserService {
 
     }
 
+    private void getColumnDetailValue(long detail_id,
+                                      int concept_id,
+                                      ColumnDetailRecord columnDetailRecord,
+                                      String glPeriod) {
+
+        ConceptDetailValues conceptDetailValues = conceptDetailsValuesRepository
+                .findByScreenConceptDetailAndGlPeriodAndColumn(concept_id,
+                        detail_id,
+                        glPeriod,
+                        columnDetailRecord.getColumnName().replaceAll("[^a-zA-Z0-9]", "_").toUpperCase());
+        if (conceptDetailValues!= null) {
+            columnDetailRecord.setColumnValue(conceptDetailValues.getColumnValue());
+        }
+    }
 
 }

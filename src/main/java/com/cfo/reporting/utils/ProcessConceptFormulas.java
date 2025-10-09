@@ -6,6 +6,7 @@ import com.cfo.reporting.dto.ConceptDetailRecord;
 import com.cfo.reporting.dto.ConceptResultDTO;
 import com.cfo.reporting.model.ConceptDetail;
 import com.cfo.reporting.model.ConceptDetailFormula;
+import com.cfo.reporting.model.ConceptDetailValues;
 import com.cfo.reporting.model.DetailFormula;
 import com.cfo.reporting.repository.ConceptDetailFormulaRepository;
 import lombok.AllArgsConstructor;
@@ -67,5 +68,6 @@ public class ProcessConceptFormulas {
         conceptResultDTO.setAllColumns(allColumnDetailRecord);
         return conceptResultDTO;
     }
+
 
 }
