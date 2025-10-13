@@ -2,6 +2,7 @@ package com.cfo.reporting.controller;
 
 import com.cfo.reporting.dto.ApiResponse;
 import com.cfo.reporting.dto.ConceptDetailValuesDTO;
+import com.cfo.reporting.dto.ScreenRepCategoryDTO;
 import com.cfo.reporting.exception.DataScreenProcessingException;
 import com.cfo.reporting.model.Concept;
 import com.cfo.reporting.model.Header;
@@ -32,9 +33,10 @@ public class DynamicScreenController {
 
 
 
-    @GetMapping("/screens")
-    public ApiResponse<List<Screen>> allScreens() {
-        return new ApiResponse<>(dynamicScreensService.getAllScreens());
+    @GetMapping("/screens/{reptype}")
+    public ApiResponse<ScreenRepCategoryDTO> allScreens(@PathVariable("reptype") String reptype) {
+
+        return new ApiResponse<>(dynamicScreensService.getAllScreens(reptype));
     }
 
     @GetMapping("/headers/{screenId}")

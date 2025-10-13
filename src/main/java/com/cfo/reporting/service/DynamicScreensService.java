@@ -1,6 +1,7 @@
 package com.cfo.reporting.service;
 
 import com.cfo.reporting.dto.ConceptDetailValuesDTO;
+import com.cfo.reporting.dto.ScreenRepCategoryDTO;
 import com.cfo.reporting.exception.DataScreenProcessingException;
 import com.cfo.reporting.model.Concept;
 import com.cfo.reporting.model.Header;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public interface DynamicScreensService {
 
-    public List<Screen> getAllScreens();
+    public ScreenRepCategoryDTO getAllScreens(String reptype);
     public List<Concept> getAllConcepts(String screenId) ;
     public List<Header> getAllHeaders(String screendId) ;
 

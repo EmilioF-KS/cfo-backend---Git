@@ -1,16 +1,21 @@
 package com.cfo.reporting.service;
 
 import com.cfo.reporting.dto.ConceptDetailValuesDTO;
+import com.cfo.reporting.dto.ScreenRepCategoryDTO;
 import com.cfo.reporting.exception.DataProcessingException;
 import com.cfo.reporting.exception.DataScreenProcessingException;
 import com.cfo.reporting.model.*;
 import com.cfo.reporting.repository.*;
 import jakarta.transaction.Transactional;
+import org.drools.core.rule.Collect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DynamicScreensServiceImpl implements DynamicScreensService {
@@ -21,6 +26,8 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
     @Autowired
     ScreenRepository screenRepository;
     @Autowired
+    ScreenRepCategoryRepository screenRepCategoryRepository;
+    @Autowired
     HeadersRepository headersRepository;
     @Autowired
     FormulaRepository formulaRepository;
@@ -28,8 +35,27 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
     @Autowired
     ConceptDetailsValuesRepository conceptDetailsValuesRepository;
 
-    public List<Screen> getAllScreens() {
-        return screenRepository.findAll();
+    public ScreenRepCategoryDTO getAllScreens(String reptype) {
+
+        ScreenRepCategoryDTO screensReportCategoryDTO = new ScreenRepCategoryDTO();
+        screensReportCategoryDTO.setRepId(reptype);
+        ScreensReportCategory screensReportCategory = new ScreensReportCategory();
+        Map<String,List<ScreensReportCategory>> screenCategory =
+                screenRepCategoryRepository.allScreensByRepId(reptype)
+                .stream().collect(
+                 Collectors.groupingBy(
+                       pantalla -> pantalla.getId().getCategoryId()));
+        Map<String,List<String>> resultMap = new HashMap<>();
+        screenCategory.forEach((category,listScreens) -> {
+            List<String> screens = listScreens.stream()
+                    .map(p-> p.getId().getScreenId())
+                    .collect(Collectors.toList());
+            resultMap.put(category,screens);
+        });
+
+        screensReportCategoryDTO.setCategoryScreens(resultMap);
+
+        return screensReportCategoryDTO;
     }
 
     public List<Concept> getAllConcepts(String screenId) {
