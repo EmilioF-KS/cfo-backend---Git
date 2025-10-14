@@ -570,6 +570,25 @@
           }
         }
       ]
+    },
+    {
+      "clavePantalla": "scr_supp_m_currency_positions",
+      "descripcion": "scr_supp_m_currency_positions ",
+      "consultas": [
+        {
+          "nombre": "suppmworksheet",
+          "tabla": "tbl_cfo_supp_m_worksheet",
+          "query": "Select account_id as id,amount as value from tbl_cfo_supp_m_worksheet WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ]
+        }
+      ]
     }
   ]
 }

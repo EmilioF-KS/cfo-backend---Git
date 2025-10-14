@@ -33,7 +33,7 @@ public class DynamicScreenController {
 
 
 
-    @GetMapping("/screens/{reptype}")
+    @GetMapping("/screens/menu/{reptype}")
     public ApiResponse<ScreenRepCategoryDTO> allScreens(@PathVariable("reptype") String reptype) {
 
         return new ApiResponse<>(dynamicScreensService.getAllScreens(reptype));
