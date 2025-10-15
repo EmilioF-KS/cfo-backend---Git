@@ -592,7 +592,7 @@
           "valorCache": "tot_current_balance",
           "configCache": {
             "tiempoExpiracion": 15,
-            "unidadTiempo": "MINUTES "
+            "unidadTiempo": "MINUTES"
           }
         }
       ]
