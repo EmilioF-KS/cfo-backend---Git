@@ -586,7 +586,14 @@
               "valorPorDefecto": "202503",
               "obligatorio": true
             }
-          ]
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
         }
       ]
     }
