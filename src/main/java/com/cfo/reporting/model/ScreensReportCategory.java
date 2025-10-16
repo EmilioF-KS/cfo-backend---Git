@@ -24,10 +24,10 @@ public class ScreensReportCategory {
 //    @JoinColumn(name = "reptype_id")
 //    private ReptypeScreen reptypeScreen;
 //
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @MapsId("screenId")
-//    @JoinColumn(name = "screenId")
-//    private Screen screen;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("screenId")
+    @JoinColumn(name = "screen_id")
+    private Screen screen;
 //
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @MapsId("categoryId")

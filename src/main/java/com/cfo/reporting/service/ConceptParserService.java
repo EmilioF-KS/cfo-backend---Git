@@ -70,7 +70,9 @@ public class ConceptParserService {
         Map<String,Object> allResultsConcepts = new HashMap<>();
         Map<String,Object> pageData = new HashMap<>();
 
+
         boolean screenToSave= screenRepository.findByScreenId(screenId).isScreen_save();
+
 
         try {
             if (hasSubconcepts(screenId)) {
@@ -94,7 +96,6 @@ public class ConceptParserService {
                 int from = Math.min(offset, allRetrievedRecords.size());
                 int to = Math.min(from + pageSize, allRetrievedRecords.size());
                 List<?> slice = allRetrievedRecords.subList(from, to);
-
                 allResultsConcepts.put("allConcepts", slice);
                 allResultsConcepts.put("pageData", pageData);
             } else {

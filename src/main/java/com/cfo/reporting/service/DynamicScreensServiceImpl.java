@@ -1,7 +1,9 @@
 package com.cfo.reporting.service;
 
 import com.cfo.reporting.dto.ConceptDetailValuesDTO;
+import com.cfo.reporting.dto.ScreenMenuItemDTO;
 import com.cfo.reporting.dto.ScreenRepCategoryDTO;
+import com.cfo.reporting.dto.ScreenReportDTO;
 import com.cfo.reporting.exception.DataProcessingException;
 import com.cfo.reporting.exception.DataScreenProcessingException;
 import com.cfo.reporting.model.*;
@@ -34,6 +36,8 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
 
     @Autowired
     ConceptDetailsValuesRepository conceptDetailsValuesRepository;
+    @Autowired
+    ScreenReportsRepository screenReportsRepository;
 
     public ScreenRepCategoryDTO getAllScreens(String reptype) {
 
@@ -45,10 +49,11 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
                 .stream().collect(
                  Collectors.groupingBy(
                        pantalla -> pantalla.getId().getCategoryId()));
-        Map<String,List<String>> resultMap = new HashMap<>();
+        Map<String,List<ScreenMenuItemDTO>> resultMap = new HashMap<>();
         screenCategory.forEach((category,listScreens) -> {
-            List<String> screens = listScreens.stream()
-                    .map(p-> p.getId().getScreenId())
+            List<ScreenMenuItemDTO> screens = listScreens.stream()
+                    .map(p-> new ScreenMenuItemDTO(p.getId().getScreenId(),
+                            p.getScreen().getScreenName(),p.getScreen().getDescription()))
                     .collect(Collectors.toList());
             resultMap.put(category,screens);
         });
@@ -56,6 +61,14 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
         screensReportCategoryDTO.setCategoryScreens(resultMap);
 
         return screensReportCategoryDTO;
+    }
+
+    public List<ScreenReportDTO> getAllMainReportsScreen() {
+        List<ScreenReportDTO> screens = screenReportsRepository.allReportsScreen().stream()
+                .map(p-> new ScreenReportDTO(p.getReptypeId(),
+                        p.getReptypeDesc(),p.getReptypeOrder()))
+                .collect(Collectors.toList());
+        return screens;
     }
 
     public List<Concept> getAllConcepts(String screenId) {

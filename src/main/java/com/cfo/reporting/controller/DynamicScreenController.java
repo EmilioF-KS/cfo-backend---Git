@@ -1,12 +1,11 @@
 package com.cfo.reporting.controller;
 
-import com.cfo.reporting.dto.ApiResponse;
-import com.cfo.reporting.dto.ConceptDetailValuesDTO;
-import com.cfo.reporting.dto.ScreenRepCategoryDTO;
+import com.cfo.reporting.dto.*;
 import com.cfo.reporting.exception.DataScreenProcessingException;
 import com.cfo.reporting.model.Concept;
 import com.cfo.reporting.model.Header;
 import com.cfo.reporting.model.Screen;
+import com.cfo.reporting.repository.ScreenRepository;
 import com.cfo.reporting.service.ConceptParserService;
 import com.cfo.reporting.service.DynamicScreensService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +29,23 @@ public class DynamicScreenController {
     DynamicScreensService dynamicScreensService;
     @Autowired
     ConceptParserService conceptParserService;
+    @Autowired
+    ScreenRepository screenRepository;
 
 
 
+
+    @GetMapping("/screens/menu")
+    public ApiResponse<List<ScreenReportDTO>> allRepMainScreens() {
+
+        return new ApiResponse<>(dynamicScreensService.getAllMainReportsScreen());
+    }
     @GetMapping("/screens/menu/{reptype}")
     public ApiResponse<ScreenRepCategoryDTO> allScreens(@PathVariable("reptype") String reptype) {
 
         return new ApiResponse<>(dynamicScreensService.getAllScreens(reptype));
     }
+
 
     @GetMapping("/headers/{screenId}")
     public ApiResponse<List<Header>> screenHeaders(@PathVariable("screenId") String screenId) {
@@ -73,12 +81,14 @@ public class DynamicScreenController {
         }
 
         System.out.println("Set page: "+page+" with page size: "+pageablePageSize);
-
+        Screen screen = screenRepository.findByScreenId(screenId);
+        String screenName = screen.getScreenName();
         Map<String,Object> response = new HashMap<>();
         Map<String,Object> mapResults = conceptParserService.allConceptsScreen(
                 screenId,glPeriod,pageable,pageNumber-1,pageablePageSize);
         Map<String,Object> pageData = (Map<String, Object>) mapResults.get("pageData");
         List<?> listConcepts = (List<?>) mapResults.get("allConcepts");
+        response.put("screenId",screenName);
         response.put("screens",listConcepts);
         response.put("pageNumber",pageNumber);
         response.put("totalItems",pageData.get("totalItems"));

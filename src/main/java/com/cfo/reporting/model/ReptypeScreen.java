@@ -1,19 +1,21 @@
 package com.cfo.reporting.model;
 
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
+
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name="tbl_cfo_screen_reptype")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ReptypeScreen {
     @Id
     @Column(name = "reptype_id")
