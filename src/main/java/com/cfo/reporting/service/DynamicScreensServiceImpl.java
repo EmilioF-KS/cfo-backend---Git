@@ -66,7 +66,7 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
     public List<ScreenReportDTO> getAllMainReportsScreen() {
         List<ScreenReportDTO> screens = screenReportsRepository.allReportsScreen().stream()
                 .map(p-> new ScreenReportDTO(p.getReptypeId(),
-                        p.getReptypeDesc(),p.getReptypeOrder()))
+                        p.getReptypeDesc(),p.getReptypeOrder(),p.getScreenId()))
                 .collect(Collectors.toList());
         return screens;
     }

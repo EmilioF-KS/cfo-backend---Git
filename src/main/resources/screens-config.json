@@ -596,6 +596,60 @@
           }
         }
       ]
+    },
+    {
+      "clavePantalla": "scr_supp_m_currency_net_positions",
+      "descripcion": "scr_supp_m_currency_net_positions ",
+      "consultas": [
+        {
+          "nombre": "suppmworksheet",
+          "tabla": "tbl_cfo_supp_m_worksheet",
+          "query": "Select account_id as id,amount as value from tbl_cfo_supp_m_worksheet WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
+    },
+    {
+      "clavePantalla": "scr_supp_m_currency_liabilities_positions ",
+      "descripcion": "scr_supp_m_currency_liabilities_positions  ",
+      "consultas": [
+        {
+          "nombre": "suppmworksheet",
+          "tabla": "tbl_cfo_supp_m_worksheet",
+          "query": "Select account_id as id,amount as value from tbl_cfo_supp_m_worksheet WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
     }
+
   ]
+
 }

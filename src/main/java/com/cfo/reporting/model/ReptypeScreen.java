@@ -24,4 +24,7 @@ public class ReptypeScreen {
     private String reptypeDesc;
     @Column(name = "reptype_order")
     private int reptypeOrder;
+    @Column(name = "screen_id")
+    private String screenId;
+
 }
