@@ -22,5 +22,7 @@ public class Screen {
     private boolean screen_save;
     @Column(name="screen_formid")
     private String screen_formid;
+    @Column(name="screen_gencsv")
+    private boolean screenGenCsv;
 
 }

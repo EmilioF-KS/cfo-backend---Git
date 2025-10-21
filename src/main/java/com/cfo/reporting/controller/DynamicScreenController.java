@@ -32,9 +32,6 @@ public class DynamicScreenController {
     @Autowired
     ScreenRepository screenRepository;
 
-
-
-
     @GetMapping("/screens/menu")
     public ApiResponse<List<ScreenReportDTO>> allRepMainScreens() {
 
@@ -56,8 +53,9 @@ public class DynamicScreenController {
     public ApiResponse<List<Concept>> screenConcepts(@PathVariable("screenId") String screenId) {
         return new ApiResponse<>(dynamicScreensService.getAllConcepts(screenId));
     }
-    @GetMapping("/screens/{screenId}/{glPeriod}")
+    @GetMapping("/screens/{reptype}/{screenId}/{glPeriod}")
     public ResponseEntity<Map<String,Object>> getScreen(
+            @PathVariable("reptype") String reptype,
             @PathVariable("screenId") String screenId,
             @PathVariable("glPeriod") String glPeriod,
             @RequestParam(value = "pageNumber",required = false) String page,
@@ -73,29 +71,36 @@ public class DynamicScreenController {
             pageNumber++;
         }
 
-
-
         try {
             pageablePageSize = (Integer.parseInt(pageSize)!=0) ? Integer.parseInt(pageSize): pageable.getPageNumber();
         }catch (NumberFormatException nfEx){
         }
 
-        System.out.println("Set page: "+page+" with page size: "+pageablePageSize);
-        Screen screen = screenRepository.findByScreenId(screenId);
-        String screenName = screen.getScreenName();
-        Map<String,Object> response = new HashMap<>();
-        Map<String,Object> mapResults = conceptParserService.allConceptsScreen(
-                screenId,glPeriod,pageable,pageNumber-1,pageablePageSize);
-        Map<String,Object> pageData = (Map<String, Object>) mapResults.get("pageData");
-        List<?> listConcepts = (List<?>) mapResults.get("allConcepts");
-        response.put("screenId",screenName);
-        response.put("screens",listConcepts);
-        response.put("pageNumber",pageNumber);
-        response.put("totalItems",pageData.get("totalItems"));
-        response.put("totalPages",pageData.get("totalPages"));
-        response.put("hasPreviousPage",pageData.get("hasPreviousPage"));
-        response.put("hasNextPage",pageData.get("hasNextPage"));
-        return ResponseEntity.ok(response);
+        try {
+            Screen screen = screenRepository.findByScreenId(screenId);
+            String screenName = screen.getScreenName();
+            //String reptypeId = this.dynamicScreensService.reportsScreenById(screenId).getId().getRepTypeId();
+            Map<String, Object> response = new HashMap<>();
+            Map<String, Object> mapResults = conceptParserService.allConceptsScreen(
+                    screen, glPeriod, pageable,
+                    pageNumber - 1, pageablePageSize,
+                    reptype);
+            Map<String, Object> pageData = (Map<String, Object>) mapResults.get("pageData");
+            List<?> listConcepts = (List<?>) mapResults.get("allConcepts");
+            response.put("reptypeId", reptype);
+            response.put("screenId", screenName);
+            response.put("screens", listConcepts);
+            response.put("pageNumber", pageNumber);
+            response.put("totalItems", pageData.get("totalItems"));
+            response.put("totalPages", pageData.get("totalPages"));
+            response.put("hasPreviousPage", pageData.get("hasPreviousPage"));
+            response.put("hasNextPage", pageData.get("hasNextPage"));
+            return ResponseEntity.ok(response);
+        }
+        catch(Exception ex) {
+            System.out.println("Exception ex"+ex.getMessage());
+        }
+        return null;
     }
 
     @PostMapping("/detailsvalues")

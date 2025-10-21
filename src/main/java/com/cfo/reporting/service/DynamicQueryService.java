@@ -36,25 +36,7 @@ public class DynamicQueryService {
 
     }
 
-    /**
-     * Ejecuta una consulta dinámica y retorna los resultados con comentarios como nombres de columna
-     */
-//    public List<Map<String, Object>> executeDynamicQueryWithComments(String dynamicQuery, String tableName) {
-//        // Ejecutar la consulta dinámica
-//        List<TreeMap<Integer,Map<String, Object>>> rawResults = null;
-//        List<String> columnComments=null;
-//        try {
-//            rawResults = executeDynamicQuery(dynamicQuery, tableName);
-//
-//            // Obtener los comentarios de las columnas
-//            columnComments = getColumnComments(tableName);
-//        }catch (Exception ex) {
-//            System.out.println(ex.getCause());
-//        }
-//
-//        // Mapear los resultados con los comentarios como nombres de columna
-//        return mapResultsWithComments(rawResults, columnComments);
-//    }
+
 
     /**
      * Ejecuta una consulta dinámica y retorna los resultados crudos

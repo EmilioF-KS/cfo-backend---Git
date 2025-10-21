@@ -23,12 +23,12 @@ public class CSVParallelProcessor {
     @Autowired
     private DataSource dataSource;
 
-    public List<CsvExporting> processToGenerateCSV(String glPeriod) throws InterruptedException, ExecutionException {
+    public List<CsvExporting> processToGenerateCSV(String glPeriod,String reportType) throws InterruptedException, ExecutionException {
         List<CsvExporting> allCsvExportingRecors = new ArrayList<>();
-        return allCsvExportingRecors = processRows(glPeriod);
+        return allCsvExportingRecors = processRows(glPeriod,reportType);
     }
 
-    private List<CsvExporting> processRows(String glPeriod) {
+    private List<CsvExporting> processRows(String glPeriod,String reportType) {
 
         List<CsvExporting> allProcessedRows = new ArrayList<>();
         try (Connection conn = dataSource.getConnection()) {
@@ -41,10 +41,12 @@ public class CSVParallelProcessor {
                     "        (SELECT column_value FROM tbl_cfo_column_details_values " +
                     "         WHERE concept_id = t.concept_id AND concept_detail_id = t.detai_id " +
                     "         AND gl_period = ?" +
+                    "         AND reptype_id = ?" +
                     "         LIMIT 1)," +
                     "        (SELECT column_value FROM tbl_cfo_column_details_values " +
-                    "         WHERE concept_id = t.concept_id AND detai_id = 0 " +
+                    "         WHERE concept_id = t.concept_id AND concept_detail_id = 0 " +
                     "         AND gl_period = ? " +
+                    "         AND reptype_id = ?" +
                     "         LIMIT 1), " +
                     "        0 " +
                     "    ) AS valor " +
@@ -52,15 +54,18 @@ public class CSVParallelProcessor {
 
             try (PreparedStatement selectStmt = conn.prepareStatement(query)) {
                 selectStmt.setString(1, glPeriod);
-                selectStmt.setString(2, glPeriod);
+                selectStmt.setString(2, reportType);
+                selectStmt.setString(3, glPeriod);
+                selectStmt.setString(4, reportType);
                 try (ResultSet rs = selectStmt.executeQuery()) {
                     // Procesar el ResultSet inmediatamente dentro del mismo contexto
                     while (rs.next()) {
                         CsvExporting csvExporting = new CsvExporting();
                         CsvExportingKey csvExportingKey = new CsvExportingKey();
+                        //csvExportingKey.setReptypeId(reportType);
                         csvExportingKey.setGlPeriod(glPeriod);
                         csvExportingKey.setIndicatorId(rs.getString("indicator_id"));
-                        csvExportingKey.setFormId(rs.getString("form_id"));
+                        csvExportingKey.setFormId(reportType);
                         csvExporting.setId(csvExportingKey);
                         csvExporting.setEntityId(rs.getString("entity_id"));
                         csvExporting.setReportAmount(rs.getDouble("valor"));
@@ -83,7 +88,7 @@ public class CSVParallelProcessor {
             CSVParallelProcessor processor = new CSVParallelProcessor();
             long startTime = System.currentTimeMillis();
 
-            processor.processToGenerateCSV("202502");
+            processor.processToGenerateCSV("202502","PR01");
 
             long endTime = System.currentTimeMillis();
             System.out.println("Procesamiento completado en " + (endTime - startTime) + " ms");

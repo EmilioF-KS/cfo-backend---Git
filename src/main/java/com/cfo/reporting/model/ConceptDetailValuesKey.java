@@ -21,6 +21,8 @@ public class ConceptDetailValuesKey {
     private String glPeriod;
     @Column(name="column_name")
     private String columnName;
+    @Column(name="reptype_id")
+    private String reptypeId;
 
 
 

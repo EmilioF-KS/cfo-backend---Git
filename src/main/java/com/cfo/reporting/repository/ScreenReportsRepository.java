@@ -12,9 +12,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ScreenReportsRepository extends JpaRepository<ReptypeScreen, Long> {
-
-    @Query(value="select * from tbl_cfo_screen_reptype " +
-            "where reptype_id in (select reptype_id from tbl_cfo_screen_reports)", nativeQuery=true)
-    List<ReptypeScreen> allReportsScreen() ;
+public interface ScreenReportsRepository extends JpaRepository<ScreensReportCategory, ScreensReportCategoryKey> {
+    @Query(value="select * from tbl_cfo_screen_reports " +
+            "where screen_id=:screenId", nativeQuery=true)
+    ScreensReportCategory reportsByScreenId(@Param("screenId") String screenId) ;
 }

@@ -19,6 +19,8 @@ public class CsvExportingKey {
     private String indicatorId;
     @Column(name="form_id")
     private String formId;
+//    @Column(name="reptype_id")
+//    private String reptypeId;
 
     @Override
     public boolean equals(Object o) {

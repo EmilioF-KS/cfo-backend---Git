@@ -38,6 +38,8 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
     ConceptDetailsValuesRepository conceptDetailsValuesRepository;
     @Autowired
     ScreenReportsRepository screenReportsRepository;
+    @Autowired
+    ScreenReptypeRepository ScreenReptypeRepository;
 
     public ScreenRepCategoryDTO getAllScreens(String reptype) {
 
@@ -64,7 +66,7 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
     }
 
     public List<ScreenReportDTO> getAllMainReportsScreen() {
-        List<ScreenReportDTO> screens = screenReportsRepository.allReportsScreen().stream()
+        List<ScreenReportDTO> screens = ScreenReptypeRepository.allReportsScreen().stream()
                 .map(p-> new ScreenReportDTO(p.getReptypeId(),
                         p.getReptypeDesc(),p.getReptypeOrder(),p.getScreenId()))
                 .collect(Collectors.toList());
@@ -91,6 +93,7 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
             conceptDetailValuesKey.setConceptId(saveConceptDetailValuesDTO.getConceptId());
             conceptDetailValuesKey.setGlPeriod(saveConceptDetailValuesDTO.getGlPeriod());
             conceptDetailValuesKey.setConceptDetailId(saveConceptDetailValuesDTO.getDetailId());
+            conceptDetailValuesKey.setReptypeId(saveConceptDetailValuesDTO.getReptypeId());
             conceptDetailValues.setId(conceptDetailValuesKey);
             conceptDetailValues.setColumnValue(saveConceptDetailValuesDTO.getColumnValue());
             conceptDetailValuesKey.setColumnName(saveConceptDetailValuesDTO.getColumnName().replaceAll("[\\s/+%]","_"));
@@ -109,6 +112,7 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
                 conceptDetailValuesKey.setConceptDetailId(conceptDetailValuesDTO.getDetailId());
                 conceptDetailValuesKey.setGlPeriod(saveConceptDetailValuesDTO.getGlPeriod());
                 conceptDetailValuesKey.setColumnName(saveConceptDetailValuesDTO.getColumnName());
+                conceptDetailValuesKey.setReptypeId(saveConceptDetailValuesDTO.getReptypeId());
                 conceptDetailValues.setId(conceptDetailValuesKey);
                 conceptDetailValuesDTO.setColumnValue(savedConceptDetailValues.getColumnValue());
                 ConceptDetailValues conceptDetailValues1 = conceptDetailsValuesRepository.save(conceptDetailValues);
@@ -126,5 +130,8 @@ public class DynamicScreensServiceImpl implements DynamicScreensService {
        return new ConceptDetailValuesDTO();
     }
 
+//    public ScreensReportCategory reportsScreenById (String screenId) {
+//        return screenReportsRepository.reportsByScreenId(screenId);
+//    }
 
 }

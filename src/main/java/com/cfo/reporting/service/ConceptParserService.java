@@ -66,19 +66,21 @@ public class ConceptParserService {
     @Autowired
     ProcessConceptFormulas processConceptFormulas;
 
-    public Map<String,Object> allConceptsScreen(String screenId, String glPeriod, Pageable page, int pageNumber, int pageSize) {
+    public Map<String,Object> allConceptsScreen(Screen screen, String glPeriod, Pageable page, int pageNumber, int pageSize,String reportType) {
         Map<String,Object> allResultsConcepts = new HashMap<>();
         Map<String,Object> pageData = new HashMap<>();
-
-
-        boolean screenToSave= screenRepository.findByScreenId(screenId).isScreen_save();
+        boolean screenToSave= screen.isScreen_save();
+        String screenId = screen.getScreenId();
 
 
         try {
+            if (screen.isScreenGenCsv()) {
+                checkRequireProcessing(glPeriod,reportType);
+            }
             if (hasSubconcepts(screenId)) {
                 List<?> allRetrievedRecords = allConceptsWithSubconcepts(
                         screenId, glPeriod, getTablesData(screenId, glPeriod),
-                        screenToSave
+                        screenToSave, reportType
                 );
 
                 long total = allRetrievedRecords.size();
@@ -173,7 +175,8 @@ public class ConceptParserService {
 
     private List<?> allConceptsWithSubconcepts(String screenId, String glPeriod,
                                                Map<String, Map<String, Object>> tablesData,
-                                               boolean screenToSave) throws Exception {
+                                               boolean screenToSave,
+                                               String reportType) throws Exception {
         List<Concept> allParentConcepts = conceptRepository.allParentConcepts(screenId);
         List<ConceptResultDTO> allResultsConcepts = new ArrayList<>();
 
@@ -227,7 +230,7 @@ public class ConceptParserService {
         }
         //Persist all concepts and Details
         if (screenToSave) {
-            saveConceptDetailValues(allResultsConcepts, glPeriod);
+            saveConceptDetailValues(allResultsConcepts, glPeriod, reportType);
         }
         return allResultsConcepts;
     }
@@ -319,7 +322,7 @@ public class ConceptParserService {
         return pageData;
     }
 
-    private boolean saveConceptDetailValues(List<ConceptResultDTO> listValues,String glPeriod) {
+    private boolean saveConceptDetailValues(List<ConceptResultDTO> listValues,String glPeriod,String reportType) {
         try {
             List<ConceptDetailValues> conceptsTosave = new ArrayList<>();
             for (ConceptResultDTO conceptResultDTO: listValues){
@@ -355,7 +358,7 @@ public class ConceptParserService {
 
             }
             //saving data in background Mode
-            backgroundSaveService.salvarConAsync(conceptsTosave,ConceptDetailValues.class);
+            backgroundSaveService.salvarConAsync(conceptsTosave,ConceptDetailValues.class,reportType);
 
         }
         catch (Exception ex) {
@@ -365,13 +368,11 @@ public class ConceptParserService {
         return true;
     }
 
-    private void checkRequireProcessing(String screenId, String glPeriod)  {
+    private void checkRequireProcessing(String glPeriod,String reportType)  {
         try {
-            if (screenId.contains(PREPROCESS_SCREEN)) {
                 backgroundSaveService.salvarConAsync(
-                        cSVParallelProcessor.processToGenerateCSV(glPeriod),
-                        CsvExporting.class);
-            }
+                        cSVParallelProcessor.processToGenerateCSV(glPeriod,reportType),
+                        CsvExporting.class,reportType);
         } catch(Exception ex) {
             System.out.println("Error when prprocessing Screen ");
         }

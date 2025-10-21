@@ -44,7 +44,7 @@ public class BackgroundSaveService<T> {
      * Método con @Async que usa el executor configurado
      */
     @Async("backgroundTaskExecutor")
-    public CompletableFuture<String> salvarConAsync(List<T> datos, Class<T> entityClass) {
+    public CompletableFuture<String> salvarConAsync(List<T> datos, Class<T> entityClass,String reportType) {
         try {
             procesarDatosEnBackground(datos,entityClass);
             return CompletableFuture.completedFuture("Procesamiento completado para " + entityClass.getSimpleName());
@@ -69,8 +69,8 @@ public class BackgroundSaveService<T> {
 
     private void procesarDatosEnBackground(List<T> datos, Class<T> entityClass) {
         long startTime = System.currentTimeMillis();
-        System.out.println("Iniciando procesamiento con Spring TaskExecutor: " +
-                datos.size() + " registros de " + entityClass.getSimpleName());
+        System.out.println("Starting processing TaskExecutor: " +
+                datos.size() + " records from " + entityClass.getSimpleName());
 
         List<List<T>> chunks = dividirEnChunks(datos, BATCH_SIZE);
 
@@ -79,7 +79,7 @@ public class BackgroundSaveService<T> {
         }
 
         long endTime = System.currentTimeMillis();
-        System.out.println("Procesamiento completado en " + (endTime - startTime) + "ms");
+        System.out.println("Processing completed in " + (endTime - startTime) + "ms");
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

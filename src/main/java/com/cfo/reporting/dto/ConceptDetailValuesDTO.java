@@ -12,6 +12,7 @@ public class ConceptDetailValuesDTO {
     private String columnName;
     private double columnValue;
     private String glPeriod;
+    private String reptypeId;
 
     public ConceptDetailValuesDTO() {
     }
