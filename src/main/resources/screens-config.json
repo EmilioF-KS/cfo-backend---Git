@@ -649,6 +649,53 @@
         }
       ]
     }
+    ,
+    {
+      "clavePantalla": "scr_supp_j_payables_and_receivables",
+      "descripcion": "scr_supp_j_payables_and_receivables",
+      "consultas": [
+        {
+          "nombre": "colvalues",
+          "tabla": "tbl_cfo_column_details_values",
+          "query": "SELECT concept_id,column_value FROM tbl_cfo_column_details_values where concept_detail_id = 0 and column_name='Current_Period' and gl_period=:glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        },
+        {
+          "nombre": "gldays",
+          "tabla": "tbl_cfo_gldays",
+          "query": "Select for_branch as id,month_change as value from tbl_cfo_gldays WHERE gl_period = :glPeriod",
+          "parametros": [
+            {
+              "nombre": "glPeriod",
+              "tipo": "String",
+              "valorPorDefecto": "202503",
+              "obligatorio": true
+            }
+          ],
+          "tipoResultado": "LISTA_MAPAS",
+          "claveCache": "for_branch",
+          "valorCache": "tot_current_balance",
+          "configCache": {
+            "tiempoExpiracion": 15,
+            "unidadTiempo": "MINUTES"
+          }
+        }
+      ]
+    }
 
   ]
 
