@@ -36,7 +36,6 @@ public class JpaConfig {
         return properties;
     }
 
-
     @Bean
     public CacheManager cacheManager() {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
