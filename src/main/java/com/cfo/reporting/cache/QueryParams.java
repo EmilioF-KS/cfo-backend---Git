@@ -33,4 +33,5 @@ public class QueryParams {
     public int hashCode() {
         return Objects.hash(screen, glPeriod, page, pageNumber, pageSize, reportType);
     }
+
 }

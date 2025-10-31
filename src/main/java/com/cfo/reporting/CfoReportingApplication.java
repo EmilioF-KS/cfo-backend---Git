@@ -16,8 +16,6 @@ import java.util.Map;
 
 @SpringBootApplication
 @EnableCaching
-//@EnableTransactionManagement
-//@Import(DataSourceAutoConfiguration.class)
 public class CfoReportingApplication implements CommandLineRunner {
    @Autowired
    private DetailParserService detailParserService;

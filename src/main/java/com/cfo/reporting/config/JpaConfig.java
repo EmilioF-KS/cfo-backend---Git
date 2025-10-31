@@ -1,6 +1,8 @@
 package com.cfo.reporting.config;
 
 import org.springframework.boot.jpa.autoconfigure.JpaProperties;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -32,6 +34,14 @@ public class JpaConfig {
         properties.setProperty("org.hibernate.hbm2ddl.auto","update");
         properties.setProperty("hibernate.dialect","org.hibernate.dialect.MySQL5Dialect");
         return properties;
+    }
+
+
+    @Bean
+    public CacheManager cacheManager() {
+        ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
+        cacheManager.setCacheNames(java.util.Arrays.asList("resultsCache"));
+        return cacheManager;
     }
 
 }
