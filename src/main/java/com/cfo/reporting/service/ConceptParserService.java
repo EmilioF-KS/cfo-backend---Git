@@ -1,5 +1,6 @@
 package com.cfo.reporting.service;
 
+import com.cfo.reporting.cache.QueryParams;
 import com.cfo.reporting.dto.ColumnDetailRecord;
 import com.cfo.reporting.dto.ConceptDetailRecord;
 import com.cfo.reporting.dto.ConceptResultDTO;
@@ -14,6 +15,8 @@ import com.cfo.reporting.service.config.PantallaConfigRepository;
 import com.cfo.reporting.utils.CSVParallelProcessor;
 import com.cfo.reporting.utils.ProcessConceptFormulas;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.cfo.reporting.service.config.PantallaService;
@@ -29,6 +32,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 @Service
+@CacheConfig("resultsCache")
 public class ConceptParserService {
 
     private static String PREPROCESS_SCREEN="scr_pr01import";
@@ -66,49 +70,53 @@ public class ConceptParserService {
     @Autowired
     ProcessConceptFormulas processConceptFormulas;
 
-    public Map<String,Object> allConceptsScreen(Screen screen, String glPeriod, Pageable page, int pageNumber, int pageSize,String reportType) {
+    @Cacheable(value="resultsCache", key="#queryParams")
+    public Map<String,Object> allConceptsScreen(QueryParams queryParams) {
+        //, String glPeriod, Pageable page, int pageNumber, int pageSize, String reportType)
         Map<String,Object> allResultsConcepts = new HashMap<>();
         Map<String,Object> pageData = new HashMap<>();
-        boolean screenToSave= screen.isScreen_save();
-        String screenId = screen.getScreenId();
-
+        boolean screenToSave= queryParams.getScreen().isScreen_save();
+        String screenId = queryParams.getScreen().getScreenId();
 
         try {
-            if (screen.isScreenGenCsv()) {
-                checkRequireProcessing(glPeriod,reportType);
+            if (queryParams.getScreen().isScreenGenCsv()) {
+                checkRequireProcessing(queryParams.getGlPeriod(),queryParams.getReportType());
             }
             if (hasSubconcepts(screenId)) {
                 List<?> allRetrievedRecords = allConceptsWithSubconcepts(
-                        screenId, glPeriod, getTablesData(screenId, glPeriod),
-                        screenToSave, reportType
+                        screenId, queryParams.getGlPeriod(), getTablesData(screenId, queryParams.getGlPeriod()),
+                        screenToSave, queryParams.getReportType()
                 );
 
                 long total = allRetrievedRecords.size();
-                int offset = pageNumber * pageSize;
-                boolean hasNext = ((pageNumber + 1) * pageSize) < total;
-                boolean hasPrev = ((pageNumber)*pageSize > 0); // 30>0
-                int totalPages  = (int) Math.ceil(total / (double) pageSize);
+                int offset = queryParams.getPageNumber() * queryParams.getPageSize();
+                boolean hasNext = ((queryParams.getPageNumber() + 1) * queryParams.getPageSize()) < total;
+                boolean hasPrev = ((queryParams.getPageNumber())*queryParams.getPageSize() > 0); // 30>0
+                int totalPages  = (int) Math.ceil(total / (double) queryParams.getPageSize());
 
                 pageData.put("totalPages", totalPages);
                 pageData.put("totalItems", total);
-                pageData.put("pageNumber", pageNumber);
+                pageData.put("pageNumber", queryParams.getPageNumber());
                 pageData.put("hasPreviousPage", hasPrev);
                 pageData.put("hasNextPage", hasNext);
 
                 int from = Math.min(offset, allRetrievedRecords.size());
-                int to = Math.min(from + pageSize, allRetrievedRecords.size());
+                int to = Math.min(from + queryParams.getPageSize(), allRetrievedRecords.size());
                 List<?> slice = allRetrievedRecords.subList(from, to);
                 allResultsConcepts.put("allConcepts", slice);
                 allResultsConcepts.put("pageData", pageData);
             } else {
-                allResultsConcepts = allConceptsWithoutSubconcepts(screenId, glPeriod, page,pageNumber,pageSize);
+                allResultsConcepts = allConceptsWithoutSubconcepts(screenId, queryParams.getGlPeriod(),
+                        queryParams.getPage(),
+                        queryParams.getPageNumber(),
+                        queryParams.getPageSize());
             }
         } catch (Exception ex) {
             ex.printStackTrace();
             pageData.put("offsetPage", 0);
             pageData.put("totalPages", 0);
             pageData.put("totalItems", 0L);
-            pageData.put("pageNumber", page.getPageNumber());
+            pageData.put("pageNumber", queryParams.getPage().getPageNumber());
             pageData.put("hasPreviousPage", false);
             pageData.put("hasNextPage", false);
             allResultsConcepts.put("allConcepts", Collections.emptyList());
@@ -338,9 +346,6 @@ public class ConceptParserService {
                     //conceptDetailsValuesRepository.save(conceptDetailValues);
                     conceptsTosave.add(conceptDetailValues);
                 }
-//                if (conceptResultDTO.getAllColumns().size() == 0 ) {
-//                    conceptsTosave.add(conceptDetailValues);
-//                }
                 for (ConceptDetailRecord conceptDetailRecord: conceptResultDTO.getDetalles()) {
                     int innerDetailColumns= conceptDetailRecord.allColumns().size();
                     for (ColumnDetailRecord columnDetailRecord: conceptDetailRecord.allColumns()) {

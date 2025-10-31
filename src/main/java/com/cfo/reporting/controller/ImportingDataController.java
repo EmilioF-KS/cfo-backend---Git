@@ -18,7 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/import")
@@ -50,21 +52,24 @@ public class ImportingDataController {
     }
 
     @PostMapping("/files")
-    public ApiResponse<?> processFiles(
+    public ResponseEntity<?> processFiles(
             @RequestParam("glperiod") String glperiod,
             @RequestParam("files[]") MultipartFile[] file) {
         // Validación básica
         List<FileProcessingDTO> filesProcessed = null;
         if (file == null || file.length == 0) {
-            return new ApiResponse<>("Send at least one file");
+            return ResponseEntity.status(HttpStatus.OK).body("Send at least one file");
         }
         try {
              filesProcessed = fileStorageService.storeFile(file,glperiod);
         } catch (DataProcessingException e) {
-            return new ApiResponse<>("Error: "+e.getMessage());
+            Map<String, Object> errors = new HashMap<>();
+            errors.put("filesProcessed",filesProcessed);
+            errors.put("error",e.getMessage());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(errors);
         }
 
-        return new ApiResponse<>(filesProcessed);
+        return ResponseEntity.status(HttpStatus.OK).body(filesProcessed);
     }
 
 

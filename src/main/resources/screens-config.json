@@ -657,7 +657,7 @@
         {
           "nombre": "colvalues",
           "tabla": "tbl_cfo_column_details_values",
-          "query": "SELECT concept_id,column_value FROM tbl_cfo_column_details_values where concept_detail_id = 0 and column_name='Current_Period' and gl_period=:glPeriod",
+          "query": "SELECT concept_id,column_value FROM tbl_cfo_column_details_values where gl_period=:glPeriod",
           "parametros": [
             {
               "nombre": "glPeriod",

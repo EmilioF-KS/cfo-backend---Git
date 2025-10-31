@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+import org.springframework.cache.annotation.EnableCaching;
 
 
 import java.util.HashMap;
@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @SpringBootApplication
+@EnableCaching
 //@EnableTransactionManagement
 //@Import(DataSourceAutoConfiguration.class)
 public class CfoReportingApplication implements CommandLineRunner {

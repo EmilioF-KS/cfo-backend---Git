@@ -1,5 +1,6 @@
 package com.cfo.reporting.controller;
 
+import com.cfo.reporting.cache.QueryParams;
 import com.cfo.reporting.dto.*;
 import com.cfo.reporting.exception.DataScreenProcessingException;
 import com.cfo.reporting.model.Concept;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,24 +70,25 @@ public class DynamicScreenController {
 
         try {
             pageNumber = (Integer.parseInt(page)!=0) ? Integer.parseInt(page): pageable.getPageNumber();
+            pageablePageSize = (Integer.parseInt(pageSize)!=0) ? Integer.parseInt(pageSize): pageable.getPageNumber();
         }catch (NumberFormatException nfEx){
             pageNumber++;
         }
 
         try {
-            pageablePageSize = (Integer.parseInt(pageSize)!=0) ? Integer.parseInt(pageSize): pageable.getPageNumber();
-        }catch (NumberFormatException nfEx){
-        }
-
-        try {
             Screen screen = screenRepository.findByScreenId(screenId);
             String screenName = screen.getScreenName();
-            //String reptypeId = this.dynamicScreensService.reportsScreenById(screenId).getId().getRepTypeId();
+            QueryParams queryParams = QueryParams.builder()
+                    .reportType(reptype)
+                    .glPeriod(glPeriod)
+                    .pageNumber(pageNumber - 1)
+                    .pageSize(pageablePageSize)
+                    .page(pageable)
+                    .screen(screen)
+                    .build();
+
             Map<String, Object> response = new HashMap<>();
-            Map<String, Object> mapResults = conceptParserService.allConceptsScreen(
-                    screen, glPeriod, pageable,
-                    pageNumber - 1, pageablePageSize,
-                    reptype);
+            Map<String, Object> mapResults = conceptParserService.allConceptsScreen(queryParams);
             Map<String, Object> pageData = (Map<String, Object>) mapResults.get("pageData");
             List<?> listConcepts = (List<?>) mapResults.get("allConcepts");
             response.put("reptypeId", reptype);
@@ -98,9 +102,11 @@ public class DynamicScreenController {
             return ResponseEntity.ok(response);
         }
         catch(Exception ex) {
-            System.out.println("Exception ex"+ex.getMessage());
+            Map<String, Object> errors = new HashMap<>();
+            errors.put("screenId",screenId);
+            errors.put("error",ex.getMessage());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(errors);
         }
-        return null;
     }
 
     @PostMapping("/detailsvalues")
